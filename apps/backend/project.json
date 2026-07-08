@@ -1,0 +1,6 @@
+{
+  "name": "booking",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/backend/src",
+  "tags": []
+}

@@ -1,0 +1,38 @@
+{
+  "name": "@booking/source",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {},
+  "private": true,
+  "devDependencies": {
+    "@nx/js": "22.7.5",
+    "@nx/next": "^23.0.1",
+    "@nxrocks/nx-spring-boot": "^11.0.1",
+    "@swc-node/register": "1.11.1",
+    "@swc/cli": "~0.8.0",
+    "@swc/core": "1.15.8",
+    "@swc/helpers": "0.5.18",
+    "@tailwindcss/postcss": "^4.3.2",
+    "@types/node": "20.19.9",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "nx": "22.7.5",
+    "prettier": "^3.8.1",
+    "tslib": "^2.3.0",
+    "typescript": "~5.9.2"
+  },
+  "workspaces": [
+    "packages/*",
+    "frontend",
+    "apps/*"
+  ],
+  "dependencies": {
+    "@radix-ui/react-alert-dialog": "^1.1.18",
+    "@radix-ui/react-tooltip": "^1.2.11",
+    "@tanstack/react-table": "^8.21.3",
+    "next": "~16.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss-animate": "^1.0.7"
+  }
+}
