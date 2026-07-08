@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: api-gateway-service
+
+  main:
+    web-application-type:
+      servlet
+
+  output:
+    ansi:
+      enabled: always
+
+  web:
+    resources:
+      add-mappings: false
+
+server:
+  port:
+    8080
+
+# Eureka Server
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+    enabled: true
+    registry-fetch-interval-seconds: 5
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          gateway:
+            TRACE
+
+apigw:
+  idempotency:
+    enabled: true
+    max-length: 256

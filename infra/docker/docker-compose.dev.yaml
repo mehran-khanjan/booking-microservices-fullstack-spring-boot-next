@@ -1,0 +1,27 @@
+services:
+  postgres-keycloak:
+    container_name: ${POSTGRES_CONTAINER_NAME_KEYCLOAK:-postgres-container}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+#  pgadmin:
+#    container_name: ${PG_ADMIN_CONTAINER_NAME:-pgadmin}
+#    image: dpage/pgadmin4:latest
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: ${PG_ADMIN_DEFAULT_EMAIL:-admin@example.com}
+#      PGADMIN_DEFAULT_PASSWORD: ${PG_ADMIN_DEFAULT_PASSWORD:-admin}
+#    volumes:
+#      - pgadmin-data:/var/lib/pgadmin
+#    ports:
+#      - "5050:80"
+#    networks:
+#      - app-network
+#    restart: unless-stopped
+#    depends_on:
+#      - postgres-keycloak
+
+volumes:
+  postgres-data:
+    name: ${POSTGRES_VOLUME_KEYCLOAK:-postgres-data}
+#  pgadmin-data:
+#    name: ${PG_ADMIN_VOLUME:-pgadmin-data}

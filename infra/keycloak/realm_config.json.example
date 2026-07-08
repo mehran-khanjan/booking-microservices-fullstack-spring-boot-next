@@ -1,0 +1,111 @@
+{
+  "realm": "booking-app-realm",
+  "enabled": true,
+  "displayName": "Booking App Realm",
+  "roles": {
+    "realm": [
+      {
+        "name": "ROLE_USER",
+        "description": "Default user role"
+      },
+      {
+        "name": "ROLE_ADMIN",
+        "description": "Administrator role"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "admin-cli",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "your-client-secret-here",
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true
+    },
+    {
+      "clientId": "auth-service",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "your-client-secret-here",
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "serviceAccountsEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "redirectUris": [""],
+      "webOrigins": [""],
+      "attributes": {
+        "access.token.lifespan": "3600"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "admin@site.com",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "admin@site.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "your-admin-secret-here",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ROLE_ADMIN"],
+      "requiredActions": []
+    }
+  ],
+  "scopeMappings": [
+    {
+      "client": "admin-cli",
+      "roles": ["manage-users"]
+    }
+  ],
+  "identityProviders": [
+    {
+      "alias": "google",
+      "providerId": "google",
+      "enabled": true,
+      "config": {
+        "clientId": "YOUR_GOOGLE_CLIENT_ID",
+        "clientSecret": "YOUR_GOOGLE_CLIENT_SECRET",
+        "defaultScope": "openid email profile",
+        "syncMode": "FORCE",
+        "trustEmail": "true",
+        "storeToken": "true"
+      }
+    }
+  ],
+  "identityProviderMappers": [
+    {
+      "name": "Hardcoded USER Role",
+      "identityProviderAlias": "google",
+      "identityProviderMapper": "oidc-hardcoded-role-idp-mapper",
+      "config": {
+        "role": "ROLE_USER"
+      }
+    }
+  ],
+  "components": {
+    "org.keycloak.userprofile.UserProfileProvider": [
+      {
+        "providerId": "declarative-user-profile",
+        "config": {
+          "kc.user.profile.config": [
+            "{\"attributes\":[{\"name\":\"username\",\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]}},{\"name\":\"email\",\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]}},{\"name\":\"phoneNumber\",\"displayName\":\"Phone Number\",\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]}},{\"name\":\"phoneVerified\",\"displayName\":\"Phone Verified\",\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]}},{\"name\":\"signupMethod\",\"displayName\":\"Signup Method\",\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]},\"validations\":{\"options\":{\"options\":[\"EMAIL\",\"PHONE\",\"GOOGLE\"]}}}],\"unmanagedAttributePolicy\":\"ENABLED\"}"
+          ]
+        }
+      }
+    ]
+  }
+}

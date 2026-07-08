@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: auth-service
+  output:
+    ansi:
+      enabled: always
+
+  # Handling 404 error
+  web:
+    resources:
+      add-mappings: false
+
+  # For Security Config + Keycloak
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/booking-app-realm
+
+server:
+  port:
+    8082
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+    enabled: true
+    registry-fetch-interval-seconds: 5
+    initial-instance-info-replication-interval-seconds: 5
+  instance:
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 10
+
+logging:
+  level:
+    org:
+      keycloak: DEBUG
+      springframework:
+        security: DEBUG
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      keycloakAdmin:
+        # Circuit opens if 50% of calls in the last 10 seconds fail
+        sliding-window-type: TIME_BASED
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+  retry:
+    instances:
+      keycloakAdmin:
+        max-attempts: 3
+        wait-duration: 1s
+  bulkhead:
+    instances:
+      keycloakAdmin:
+        max-concurrent-calls: 5      # At most 5 concurrent calls to Keycloak
+        max-wait-duration: 1s        # Fail fast if no semaphore permit available within 1 second
+  ratelimiter:
+    instances:
+      globalRateLimiter:
+        limit-for-period: 3
+        limit-refresh-period: 60m
+        timeout-duration: 0s
+
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - http://localhost:8080
+
+keycloak:
+  admin:
+    server-url: http://localhost:8081
+    username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+    password: ${KEYCLOAK_ADMIN_SECRET:admin}
+    realm: booking-app-realm
+  realm: booking-app-realm
+  client-id: auth-service
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:your-client-secret-here}
