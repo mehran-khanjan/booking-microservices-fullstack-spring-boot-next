@@ -112,4 +112,12 @@ Using GitHub Actions with AWS.
 
 **Acceptance Criteria:**
 - 1.1.1 User can sign up with email.
-
+- 1.1.2 User can sign up with phone
+- 1.1.3 User can sign in by email
+- 1.1.4 User can sign in by phone
+- 1.1.5 User can sign in and sing up by Google
+- 1.1.6 User can sign out
+- 1.1.7 User can forget password
+- 1.1.8 User can change password
+- 1.1.9 Refresh token
+- 1.1.10 Email/SMS verification required before account activation

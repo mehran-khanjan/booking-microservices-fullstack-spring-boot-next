@@ -54,9 +54,33 @@ public class SecurityConfig {
             auth ->
                 auth
                     // Public endpoints (no token required)
-                    .requestMatchers(ApiRoutes.Auth.SIGN_UP, ApiRoutes.Auth.SIGN_UP_TS)
+                    .requestMatchers(
+                        ApiRoutes.Auth.SIGN_UP_EMAIL,
+                        ApiRoutes.Auth.SIGN_UP_EMAIL_TS,
+                        ApiRoutes.Auth.SIGN_UP_EMAIL_VERIFY,
+                        ApiRoutes.Auth.SIGN_UP_EMAIL_VERIFY_TS,
+                        ApiRoutes.Auth.SIGN_UP_PHONE,
+                        ApiRoutes.Auth.SIGN_UP_PHONE_TS,
+                        ApiRoutes.Auth.SIGN_UP_PHONE_VERIFY,
+                        ApiRoutes.Auth.SIGN_UP_PHONE_VERIFY_TS,
+                        ApiRoutes.Auth.SIGN_IN_EMAIL,
+                        ApiRoutes.Auth.SIGN_IN_EMAIL_TS,
+                        ApiRoutes.Auth.SIGN_IN_PHONE,
+                        ApiRoutes.Auth.SIGN_IN_PHONE_TS,
+                        ApiRoutes.Auth.SIGN_IN_GOOGLE,
+                        ApiRoutes.Auth.SIGN_IN_GOOGLE_TS,
+                        ApiRoutes.Auth.AUTH_REFRESH,
+                        ApiRoutes.Auth.AUTH_REFRESH_TS,
+                        ApiRoutes.Auth.SIGN_OUT,
+                        ApiRoutes.Auth.SIGN_OUT_TS,
+                        ApiRoutes.Auth.FORGET_PASSWORD,
+                        ApiRoutes.Auth.FORGET_PASSWORD_TS)
                     .permitAll()
+
                     // Authenticated endpoints (valid JWT required)
+                    .requestMatchers(
+                        ApiRoutes.Auth.CHANGE_PASSWORD, ApiRoutes.Auth.CHANGE_PASSWORD_TS)
+                    .authenticated()
 
                     // for /error route
                     .requestMatchers("/error")

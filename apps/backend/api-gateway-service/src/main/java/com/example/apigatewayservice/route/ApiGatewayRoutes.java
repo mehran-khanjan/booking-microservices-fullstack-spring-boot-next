@@ -23,6 +23,12 @@ public class ApiGatewayRoutes {
             .filter(lb("auth-service"))
             .build();
 
-    return authRoutes;
+    var communicationRoutes =
+        route("communication-service")
+            .route(path("/api/v1/communication/**"), http())
+            .filter(lb("communication-service"))
+            .build();
+
+    return authRoutes.and(communicationRoutes);
   }
 }

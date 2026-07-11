@@ -7,7 +7,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.example.authservice.config.TestSecurityConfig;
-import com.example.authservice.service.KeycloakUserAdminService;
+import com.example.authservice.service.keycloak.KeycloakUserAdminService;
 import com.example.commonlib.exception.UserAlreadyExistsException;
 import com.example.commonlib.route.ApiRoutes;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +54,7 @@ class AuthServiceE2ETest {
     var response =
         restClient
             .post()
-            .uri(ApiRoutes.Auth.SIGN_UP)
+            .uri(ApiRoutes.Auth.SIGN_UP_EMAIL)
             .contentType(MediaType.APPLICATION_JSON)
             .body("{\"email\":\"e2e@example.com\",\"password\":\"Passw0rd!\"}")
             .retrieve()
@@ -79,7 +79,7 @@ class AuthServiceE2ETest {
     try {
       restClient
           .post()
-          .uri(ApiRoutes.Auth.SIGN_UP)
+          .uri(ApiRoutes.Auth.SIGN_UP_EMAIL)
           .contentType(MediaType.APPLICATION_JSON)
           .body("{\"email\":\"dup@example.com\",\"password\":\"Passw0rd!\"}")
           .retrieve()
@@ -96,7 +96,7 @@ class AuthServiceE2ETest {
     try {
       restClient
           .post()
-          .uri(ApiRoutes.Auth.SIGN_UP)
+          .uri(ApiRoutes.Auth.SIGN_UP_EMAIL)
           .contentType(MediaType.APPLICATION_JSON)
           .body("{\"email\":\"not-an-email\",\"password\":\"\"}")
           .retrieve()

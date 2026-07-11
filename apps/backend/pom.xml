@@ -31,10 +31,12 @@
     </scm>
 
     <modules>
-        <module>common-lib</module>
+        <module>lib/common-lib</module>
+        <module>lib/outbox-lib</module>
         <module>eureka-service</module>
         <module>api-gateway-service</module>
         <module>auth-service</module>
+        <module>communication-service</module>
     </modules>
 
     <properties>

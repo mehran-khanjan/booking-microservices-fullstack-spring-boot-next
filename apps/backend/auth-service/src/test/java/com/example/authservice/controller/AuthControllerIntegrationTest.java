@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.authservice.config.TestSecurityConfig;
-import com.example.authservice.service.KeycloakUserAdminService;
+import com.example.authservice.service.keycloak.KeycloakUserAdminService;
 import com.example.commonlib.exception.UserAlreadyExistsException;
 import com.example.commonlib.route.ApiRoutes;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class AuthControllerIntegrationTest {
 
     mockMvc
         .perform(
-            post(ApiRoutes.Auth.SIGN_UP)
+            post(ApiRoutes.Auth.SIGN_UP_EMAIL)
                 .contentType("application/json")
                 .content("{\"email\":\"integration@example.com\",\"password\":\"Passw0rd!\"}"))
         .andExpect(status().isCreated())
@@ -60,7 +60,7 @@ class AuthControllerIntegrationTest {
 
     mockMvc
         .perform(
-            post(ApiRoutes.Auth.SIGN_UP)
+            post(ApiRoutes.Auth.SIGN_UP_EMAIL)
                 .contentType("application/json")
                 .content("{\"email\":\"dup@example.com\",\"password\":\"Passw0rd!\"}"))
         .andExpect(status().isConflict())
@@ -71,7 +71,7 @@ class AuthControllerIntegrationTest {
   void signUp_invalidBody_returns400() throws Exception {
     mockMvc
         .perform(
-            post(ApiRoutes.Auth.SIGN_UP)
+            post(ApiRoutes.Auth.SIGN_UP_EMAIL)
                 .contentType("application/json")
                 .content("{\"email\":\"invalid\",\"password\":\"\"}"))
         .andExpect(status().isBadRequest());
@@ -87,7 +87,7 @@ class AuthControllerIntegrationTest {
     mockMvc
         .perform(
             org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options(
-                    ApiRoutes.Auth.SIGN_UP)
+                    ApiRoutes.Auth.SIGN_UP_EMAIL)
                 .header("Origin", "http://localhost:3000")
                 .header("Access-Control-Request-Method", "POST"))
         .andExpect(status().isOk());
