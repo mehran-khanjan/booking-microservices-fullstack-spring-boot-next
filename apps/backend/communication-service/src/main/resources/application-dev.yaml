@@ -1,0 +1,103 @@
+spring:
+  application:
+    name: communication-service
+  output:
+    ansi:
+      enabled: always
+
+  # Handling 404 error
+  web:
+    resources:
+      add-mappings: false
+
+  # For Security Config + Keycloak
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://127.0.0.1:8081/realms/booking-app-realm
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      timeout: 60000
+
+  # Jpa
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        database-platform: org.hibernate.community.dialect.SQLiteDialect
+        jdbc:
+          time_zone: UTC
+
+    # Database (SQLite)
+  datasource:
+    url: jdbc:sqlite:booking-communication.db
+    driver-class-name: org.sqlite.JDBC
+    username: ""
+    password: ""
+    hikari:
+      maximum-pool-size: 1
+      connection-timeout: 30000
+
+    # Flyway - Sqlite
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    url: jdbc:sqlite:booking-communication.db
+    driver-class-name: org.sqlite.JDBC
+    user:
+    password:
+    locations: classpath:db/migration/sqlite
+
+server:
+  port:
+    8083
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+    enabled: true
+    registry-fetch-interval-seconds: 5
+    initial-instance-info-replication-interval-seconds: 5
+  instance:
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 10
+
+logging:
+  level:
+    org:
+      keycloak: DEBUG
+      springframework:
+        security: DEBUG
+
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - http://localhost:8080
+
+keycloak:
+  realm: booking-app-realm
+  client-id: communication-service
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:your-client-secret-here}
+  server-url: http://localhost:8081
+
+sendgrid:
+  api-key: ${SENDGRID_API_KEY:your-api-key}
+  from-email: no-reply@booking-app.com
+  from-name: Booking App
+
+twilio:
+  account-sid: ${TWILIO_ACCOUNT_SID:your-account-id}
+  auth-token: ${TWILIO_AUTH_TOKEN:your-auth-token}
+  phone-number: ${TWILIO_PHONE_NUMBER:999999999}

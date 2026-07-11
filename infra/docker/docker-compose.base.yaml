@@ -24,7 +24,7 @@ services:
       - app-network
 
   keycloak:
-    image: keycloak/keycloak:26.6
+    image: keycloak/keycloak:22.0.3-0
     container_name: ${KEYCLOAK_CONTAINER_NAME:-keycloak-container}
     environment:
       KC_DB: postgres
@@ -34,11 +34,11 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USER:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
       KC_HOSTNAME: 127.0.0.1
-      KC_HOSTNAME_PORT: 8089
+      KC_HOSTNAME_PORT: 8081
       KC_HOSTNAME_STRICT: false
       KC_IMPORT_OVERRIDE: true
-      KC_FEATURES: token-exchange
-    command: [ "start-dev" , "--import-realm" ]
+      KC_FEATURES: token-exchange,admin-fine-grained-authz
+    command: [ "start-dev" , "--import-realm", "--features=token-exchange,admin-fine-grained-authz" ]
     volumes:
       - ../keycloak/realm_config.json:/opt/keycloak/data/import/realm_config.json:ro
     ports:

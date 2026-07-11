@@ -75,3 +75,106 @@ Here is a one-line explanation for each file:
 - **`AuthController.java`** – REST controller exposing the `/signup` endpoint with idempotency and rate-limiting, handling user registration and returning appropriate HTTP statuses.
 
 - **`AuthServiceApplication.java`** – Spring Boot main class that bootstraps the service and enables service discovery via `@EnableDiscoveryClient`.
+
+## Acceptance Criteria 1.1.2 to 1.1.10
+
+**Note 1:** The system will follow a Microservices architecture, comprising:
+
+1. API Gateway (Spring Cloud Gateway)
+2. Service Discovery (Eureka)
+3. Auth Service (+ Keycloak)
+4. Common Library
+5. Outbox Library (Inbox-outbox Pattern with RabbitMQ)
+6. Communication Service (Email, SMS, Notification Handler)
+
+**Note 2:** API Gateway new files:
+
+Here is a one-line explanation for each file:
+
+- **`GlobalExceptionHandler.java`** – Catches **all unhandled exceptions**, logs them with a trace ID, and returns a standardized `ApiResponse` with HTTP 500.
+
+**Note 3:** Auth service new files:
+
+Here is a one-line explanation for each file:
+
+- **GlobalExceptionHandler.java** – Catches all unhandled exceptions, logs them with a trace ID, and returns a standardized 500 `ApiResponse`.
+
+- **CommunicationRabbitConfig.java** – Defines RabbitMQ exchange, object mapper, custom message converter, and `RabbitTemplate` for outbox publishing.
+
+- **CustomMessageConverter.java** – Custom JSON message converter for RabbitMQ; `fromMessage` is stubbed (returns null) and needs implementation.
+
+- **GoogleIdTokenVerifierConfig.java** – Provides a `GoogleIdTokenVerifier` bean for validating Google OAuth2 ID tokens.
+
+- **SchedulingConfig.java** – Enables Spring scheduling (`@EnableScheduling`) for outbox and background jobs.
+
+- **otp/SmsService.java** – Queues OTP SMS events via the outbox for the notification service to send via Twilio.
+
+- **otp/EmailService.java** – Queues OTP email events via the outbox for the notification service to send via SendGrid.
+
+- **otp/OtpService.java** – Generates, stores (in Redis), and verifies OTPs with attempt limits, dispatching via email/SMS channels.
+
+- **keycloak/KeycloakUserAdminService.java** – Resilient Keycloak admin client for user creation, role assignment, attribute updates, and federated identity linking.
+
+- **keycloak/KeycloakTokenExchangeService.java** – Exchanges a service account token for a user token using Keycloak's token exchange grant, with caching.
+
+- **AccountLockoutService.java** – Tracks failed login attempts in Redis and temporarily locks accounts after a configurable threshold.
+
+- **PasswordValidationService.java** – Validates password strength using Passay rules (length, upper, lower, digit, special).
+
+- **TokenRevocationService.java** – Stores revoked tokens in Redis for blacklisting during logout or refresh.
+
+**Note 3:** Outbox library new files:
+
+Here is a one-line explanation for each file:
+
+- **inbox/repository/InboxRepository.java** – JPA repository for `InboxEvent` with methods to find by `eventId` and check existence for idempotency.
+
+- **inbox/converter/EpochMillisConverter.java** – JPA converter to map `LocalDateTime` to/from epoch milliseconds (stored as `Long`) in the database.
+
+- **inbox/entity/InboxEvent.java** – Entity representing a consumed message with status tracking (`PENDING`, `PROCESSING`, `PROCESSED`, `FAILED`) and an idempotency key.
+
+- **outbox/repository/OutboxRepository.java** – JPA repository for `OutboxEvent` with custom queries to fetch events by status, retry count, and timestamps.
+
+- **outbox/converter/EpochMillisConverter.java** – Same epoch-millis converter for outbox date fields (consistent with inbox).
+
+- **outbox/entity/OutboxEvent.java** – Entity for an outbox message with status (`PENDING`, `PROCESSING`, `PUBLISHED`, `FAILED`), routing keys, and exchange.
+
+- **outbox/service/OutboxService.java** – Service to save an event to the outbox table inside the caller’s transaction (`@Transactional(propagation = MANDATORY)`).
+
+- **outbox/service/OutboxPublisher.java** – Scheduled publisher that polls pending outbox rows, sends them to RabbitMQ, and updates statuses with recovery for stuck events.
+
+**Note 4:** Communication service new files:
+
+Here is a one-line explanation for each file:
+
+- **DeathCountExtractor.java** – Extracts cumulative dead‑letter count from RabbitMQ’s `x‑death` header for a specific queue.
+
+- **Util.java** – Provides utility methods for masking emails and phone numbers in logs.
+
+- **CommunicationServiceApplication.java** – Spring Boot entry point with component scanning and JPA configuration for the inbox library.
+
+- **SmsService.java** – Sends OTP SMS via Twilio with circuit‑breaker and retry resilience.
+
+- **DlqReplayService.java** – Moves messages from a dead‑letter queue back to its original live queue for manual replay.
+
+- **IdempotencyGuard.java** – Uses Redis SETNX to prevent duplicate processing of the same eventId (24h window).
+
+- **DlqMonitorService.java** – Periodically checks DLQ depths and exposes them as Prometheus gauges, logging errors when non‑empty.
+
+- **EmailService.java** – Sends transactional emails (OTP, password reset) via SendGrid with resilience patterns.
+
+- **RoleBean.java** – Exposes role names (`ADMIN`, `USER`) as Spring beans for use in `@PreAuthorize` expressions.
+
+- **CorsProperties.java** – Binds `app.cors.allowed‑origins` for CORS configuration.
+
+- **SecurityConfig.java** – Configures stateless JWT resource server with Keycloak, extracting realm roles and admin‑only endpoints.
+
+- **CommunicationRabbitConfig.java** – Declares exchanges, queues (with DLX), bindings, and a listener container factory for RabbitMQ.
+
+- **CustomMessageConverter.java** – Converts incoming RabbitMQ messages to `OtpEmailEvent` or `OtpSmsEvent` based on the `eventType` header.
+
+- **DlqAdminController.java** – Exposes admin endpoints (secured with `ROLE_ADMIN`) to trigger DLQ replays for email and SMS queues.
+
+- **CommunicationConsumer.java** – Implements the inbox‑pattern consumer: claims inbox records, processes events, and updates status (idempotent, failure tracking).
+
+- **GlobalExceptionHandler.java** – Handles all uncaught exceptions, logs them with trace ID, and returns a standardized 500 error response.

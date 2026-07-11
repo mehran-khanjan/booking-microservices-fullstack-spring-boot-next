@@ -1,0 +1,6 @@
+spring:
+  task:
+    scheduling:
+      pool:
+        size: 5
+      thread-name-prefix: outbox-scheduler-

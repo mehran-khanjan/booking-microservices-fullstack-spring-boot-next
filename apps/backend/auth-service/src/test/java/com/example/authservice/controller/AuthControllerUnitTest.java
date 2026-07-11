@@ -46,7 +46,7 @@ class AuthControllerUnitTest {
 
     mockMvc
         .perform(
-            post(ApiRoutes.Auth.SIGN_UP)
+            post(ApiRoutes.Auth.SIGN_UP_EMAIL)
                 .contentType("application/json")
                 .content("{\"email\":\"user@example.com\",\"password\":\"Passw0rd!\"}"))
         .andExpect(status().isCreated())
@@ -64,7 +64,7 @@ class AuthControllerUnitTest {
 
     mockMvc
         .perform(
-            post(ApiRoutes.Auth.SIGN_UP_TS)
+            post(ApiRoutes.Auth.SIGN_UP_EMAIL_TS)
                 .contentType("application/json")
                 .content("{\"email\":\"user2@example.com\",\"password\":\"Passw0rd!\"}"))
         .andExpect(status().isCreated());
@@ -77,7 +77,7 @@ class AuthControllerUnitTest {
 
     mockMvc
         .perform(
-            post(ApiRoutes.Auth.SIGN_UP)
+            post(ApiRoutes.Auth.SIGN_UP_EMAIL)
                 .contentType("application/json")
                 .content("{\"email\":\"dup@example.com\",\"password\":\"Passw0rd!\"}"))
         .andExpect(status().isConflict())
@@ -89,7 +89,7 @@ class AuthControllerUnitTest {
   void signUp_invalidEmail_returns400() throws Exception {
     mockMvc
         .perform(
-            post(ApiRoutes.Auth.SIGN_UP)
+            post(ApiRoutes.Auth.SIGN_UP_EMAIL)
                 .contentType("application/json")
                 .content("{\"email\":\"not-an-email\",\"password\":\"Passw0rd!\"}"))
         .andExpect(status().isBadRequest());
@@ -99,7 +99,7 @@ class AuthControllerUnitTest {
   void signUp_blankPassword_returns400() throws Exception {
     mockMvc
         .perform(
-            post(ApiRoutes.Auth.SIGN_UP)
+            post(ApiRoutes.Auth.SIGN_UP_EMAIL)
                 .contentType("application/json")
                 .content("{\"email\":\"user@example.com\",\"password\":\"\"}"))
         .andExpect(status().isBadRequest());
@@ -108,7 +108,8 @@ class AuthControllerUnitTest {
   @Test
   void signUp_malformedJson_returns400() throws Exception {
     mockMvc
-        .perform(post(ApiRoutes.Auth.SIGN_UP).contentType("application/json").content("not-json"))
+        .perform(
+            post(ApiRoutes.Auth.SIGN_UP_EMAIL).contentType("application/json").content("not-json"))
         .andExpect(status().isBadRequest());
   }
 }

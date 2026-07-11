@@ -15,7 +15,46 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8081/realms/booking-app-realm
+          issuer-uri: http://127.0.0.1:8081/realms/booking-app-realm
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      timeout: 60000
+
+  # Jpa
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        database-platform: org.hibernate.community.dialect.SQLiteDialect
+        jdbc:
+          time_zone: UTC
+
+    # Database (SQLite)
+  datasource:
+    url: jdbc:sqlite:booking-auth.db
+    driver-class-name: org.sqlite.JDBC
+    username: ""
+    password: ""
+    hikari:
+      maximum-pool-size: 1
+      connection-timeout: 30000
+
+    # Flyway - Sqlite
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    url: jdbc:sqlite:booking-auth.db
+    driver-class-name: org.sqlite.JDBC
+    user:
+    password:
+    locations: classpath:db/migration/sqlite
 
 server:
   port:
@@ -45,40 +84,87 @@ resilience4j:
   circuitbreaker:
     instances:
       keycloakAdmin:
-        # Circuit opens if 50% of calls in the last 10 seconds fail
         sliding-window-type: TIME_BASED
         sliding-window-size: 10
         failure-rate-threshold: 50
         wait-duration-in-open-state: 30s
+      redis:
+        sliding-window-type: TIME_BASED
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+      keycloakToken:
+        sliding-window-type: TIME_BASED
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+      keycloak:
+        sliding-window-type: TIME_BASED
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+
   retry:
     instances:
       keycloakAdmin:
         max-attempts: 3
         wait-duration: 1s
+      redis:
+        max-attempts: 3
+        wait-duration: 1s
+      keycloakToken:
+        max-attempts: 3
+        wait-duration: 1s
+      keycloak:
+        max-attempts: 3
+        wait-duration: 1s
+
   bulkhead:
     instances:
       keycloakAdmin:
-        max-concurrent-calls: 5      # At most 5 concurrent calls to Keycloak
-        max-wait-duration: 1s        # Fail fast if no semaphore permit available within 1 second
-  ratelimiter:
-    instances:
-      globalRateLimiter:
-        limit-for-period: 3
-        limit-refresh-period: 60m
-        timeout-duration: 0s
+        max-concurrent-calls: 5
+        max-wait-duration: 1s
+      otpDispatch:
+        max-concurrent-calls: 10
+        max-wait-duration: 1s
 
 app:
   cors:
     allowed-origins:
-      - http://localhost:3000
-      - http://localhost:8080
+      - http://127.0.0.1:3000
+      - http://127.0.0.1:8080
 
 keycloak:
   admin:
-    server-url: http://localhost:8081
+    server-url: http://127.0.0.1:8081
     username: ${KEYCLOAK_ADMIN_USERNAME:admin}
     password: ${KEYCLOAK_ADMIN_SECRET:admin}
     realm: booking-app-realm
   realm: booking-app-realm
   client-id: auth-service
   client-secret: ${KEYCLOAK_CLIENT_SECRET:your-client-secret-here}
+  server-url: http://127.0.0.1:8081
+
+token:
+  cookie:
+    name: refresh_token
+    max-age: 86400
+    secure: ${COOKIE_SECURE:false}
+
+otp:
+  length: 6
+  expiry-minutes: 5
+  max-attempts: 3
+
+google:
+  oauth:
+    client-id: your-client-id-here
+
+
+password:
+  min-length: 8
+
+account:
+  lockout:
+    max-attempts: 5
+    duration-minutes: 30
