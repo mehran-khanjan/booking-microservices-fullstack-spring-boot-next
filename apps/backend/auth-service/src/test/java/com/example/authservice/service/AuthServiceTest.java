@@ -1,26 +1,5 @@
 package com.example.authservice.service;
 
-import com.example.authservice.dto.otp.OtpRequest;
-import com.example.authservice.feign.KeycloakAuthClient;
-import com.example.authservice.service.keycloak.KeycloakTokenExchangeService;
-import com.example.authservice.service.keycloak.KeycloakUserAdminService;
-import java.util.List;
-import java.util.Map;
-
-import com.example.authservice.service.otp.EmailService;
-import com.example.authservice.service.otp.OtpService;
-import com.example.outboxlib.outbox.service.OutboxService;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.MultiValueMap;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,23 +9,42 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+
+import com.example.authservice.dto.otp.OtpRequest;
 import com.example.authservice.dto.signin.TokenResponse;
 import com.example.authservice.enums.OtpChannel;
+import com.example.authservice.feign.KeycloakAuthClient;
+import com.example.authservice.service.keycloak.KeycloakTokenExchangeService;
+import com.example.authservice.service.keycloak.KeycloakUserAdminService;
+import com.example.authservice.service.otp.EmailService;
+import com.example.authservice.service.otp.OtpService;
 import com.example.commonlib.exception.AccountNotVerifiedException;
 import com.example.commonlib.exception.AuthenticationException;
 import com.example.commonlib.exception.KeycloakOperationException;
 import com.example.commonlib.exception.PasswordPolicyException;
+import com.example.outboxlib.outbox.service.OutboxService;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import feign.FeignException;
 import feign.Request;
 import feign.Request.HttpMethod;
 import feign.RequestTemplate;
-import feign.FeignException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.MultiValueMap;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -79,18 +77,18 @@ class AuthServiceTest {
   @BeforeEach
   void setUp() {
     authService =
-            new AuthService(
-                    keycloakUserAdmin,
-                    keycloakAuthClient,
-                    tokenExchangeService,
-                    passwordValidationService,
-                    accountLockoutService,
-                    tokenRevocationService,
-                    googleIdTokenVerifier,
-                    otpService,
-                    outboxService,
-                    redisTemplate,
-                    emailService);
+        new AuthService(
+            keycloakUserAdmin,
+            keycloakAuthClient,
+            tokenExchangeService,
+            passwordValidationService,
+            accountLockoutService,
+            tokenRevocationService,
+            googleIdTokenVerifier,
+            otpService,
+            outboxService,
+            redisTemplate,
+            emailService);
     ReflectionTestUtils.setField(authService, "realm", REALM);
     ReflectionTestUtils.setField(authService, "clientId", CLIENT_ID);
     ReflectionTestUtils.setField(authService, "clientSecret", CLIENT_SECRET);
@@ -98,9 +96,8 @@ class AuthServiceTest {
 
   @Test
   void registerUser_delegatesToKeycloakAdminService_andReturnsUserId() {
-    when(keycloakUserAdmin.createUser(
-            eq("user@example.com"), isNull(), eq("Passw0rd!"), anyMap()))
-            .thenReturn("generated-user-id");
+    when(keycloakUserAdmin.createUser(eq("user@example.com"), isNull(), eq("Passw0rd!"), anyMap()))
+        .thenReturn("generated-user-id");
 
     String userId = authService.registerUser("user@example.com", "Passw0rd!");
 
@@ -113,14 +110,13 @@ class AuthServiceTest {
 
     authService.registerUser("user@example.com", "pw");
 
-    verify(keycloakUserAdmin)
-            .createUser(eq("user@example.com"), isNull(), eq("pw"), anyMap());
+    verify(keycloakUserAdmin).createUser(eq("user@example.com"), isNull(), eq("pw"), anyMap());
   }
 
   @Test
   void registerUser_validatesPassword_createsKeycloakUser_andDispatchesEmailOtp() {
     when(keycloakUserAdmin.createUser(eq("user@example.com"), isNull(), eq("Passw0rd!"), anyMap()))
-            .thenReturn("user-id-1");
+        .thenReturn("user-id-1");
 
     String userId = authService.registerUser("user@example.com", "Passw0rd!");
 
@@ -141,21 +137,21 @@ class AuthServiceTest {
     authService.registerUser("user@example.com", "Passw0rd!");
 
     verify(keycloakUserAdmin)
-            .createUser(
-                    eq("user@example.com"),
-                    isNull(),
-                    eq("Passw0rd!"),
-                    eq(Map.of("signupMethod", List.of("EMAIL"), "phoneVerified", List.of("false"))));
+        .createUser(
+            eq("user@example.com"),
+            isNull(),
+            eq("Passw0rd!"),
+            eq(Map.of("signupMethod", List.of("EMAIL"), "phoneVerified", List.of("false"))));
   }
 
   @Test
   void registerUser_invalidPassword_propagatesExceptionWithoutCreatingUser() {
     doThrow(new PasswordPolicyException("too weak"))
-            .when(passwordValidationService)
-            .validatePassword("weak");
+        .when(passwordValidationService)
+        .validatePassword("weak");
 
     assertThatThrownBy(() -> authService.registerUser("user@example.com", "weak"))
-            .isInstanceOf(PasswordPolicyException.class);
+        .isInstanceOf(PasswordPolicyException.class);
 
     verifyNoInteractions(keycloakUserAdmin, otpService);
   }
@@ -167,7 +163,7 @@ class AuthServiceTest {
   @Test
   void registerUserWithPhone_createsUser_andDispatchesPhoneOtp() {
     when(keycloakUserAdmin.createUser(isNull(), eq("+15551234567"), eq("Passw0rd!"), anyMap()))
-            .thenReturn("user-id-2");
+        .thenReturn("user-id-2");
 
     String userId = authService.registerUserWithPhone("+15551234567", "Passw0rd!");
 
@@ -184,7 +180,7 @@ class AuthServiceTest {
   @Test
   void verifyEmailOtp_marksEmailVerified_andExchangesToken() {
     when(otpService.verifyOtp(OtpChannel.EMAIL, "user@example.com", "123456"))
-            .thenReturn("user-id-3");
+        .thenReturn("user-id-3");
     TokenResponse expected = TokenResponse.builder().accessToken("at").build();
     when(tokenExchangeService.exchangeTokenForUser("user-id-3")).thenReturn(expected);
 
@@ -213,7 +209,7 @@ class AuthServiceTest {
   @Test
   void login_withVerifiedEmail_succeeds_andResetsFailedAttempts() {
     when(keycloakAuthClient.getToken(eq(REALM), any()))
-            .thenReturn(Map.of("access_token", "at", "refresh_token", "rt", "expires_in", 300));
+        .thenReturn(Map.of("access_token", "at", "refresh_token", "rt", "expires_in", 300));
     UserRepresentation user = new UserRepresentation();
     user.setEmailVerified(true);
     when(keycloakUserAdmin.findByUsername("user@example.com")).thenReturn(user);
@@ -230,19 +226,19 @@ class AuthServiceTest {
   @Test
   void login_withUnverifiedEmail_throwsAccountNotVerified() {
     when(keycloakAuthClient.getToken(eq(REALM), any()))
-            .thenReturn(Map.of("access_token", "at", "refresh_token", "rt", "expires_in", 300));
+        .thenReturn(Map.of("access_token", "at", "refresh_token", "rt", "expires_in", 300));
     UserRepresentation user = new UserRepresentation();
     user.setEmailVerified(false);
     when(keycloakUserAdmin.findByUsername("user@example.com")).thenReturn(user);
 
     assertThatThrownBy(() -> authService.login("user@example.com", null, "Passw0rd!"))
-            .isInstanceOf(AccountNotVerifiedException.class);
+        .isInstanceOf(AccountNotVerifiedException.class);
   }
 
   @Test
   void login_withVerifiedPhone_succeeds() {
     when(keycloakAuthClient.getToken(eq(REALM), any()))
-            .thenReturn(Map.of("access_token", "at", "refresh_token", "rt", "expires_in", 300));
+        .thenReturn(Map.of("access_token", "at", "refresh_token", "rt", "expires_in", 300));
     UserRepresentation user = new UserRepresentation();
     user.setAttributes(Map.of("phoneVerified", List.of("true")));
     when(keycloakUserAdmin.findByUsername("+15551234567")).thenReturn(user);
@@ -255,19 +251,19 @@ class AuthServiceTest {
   @Test
   void login_withUnverifiedPhone_throwsAccountNotVerified() {
     when(keycloakAuthClient.getToken(eq(REALM), any()))
-            .thenReturn(Map.of("access_token", "at", "refresh_token", "rt", "expires_in", 300));
+        .thenReturn(Map.of("access_token", "at", "refresh_token", "rt", "expires_in", 300));
     UserRepresentation user = new UserRepresentation();
     user.setAttributes(Map.of());
     when(keycloakUserAdmin.findByUsername("+15551234567")).thenReturn(user);
 
     assertThatThrownBy(() -> authService.login(null, "+15551234567", "Passw0rd!"))
-            .isInstanceOf(AccountNotVerifiedException.class);
+        .isInstanceOf(AccountNotVerifiedException.class);
   }
 
   @Test
   void login_withoutEmailOrPhone_throwsIllegalArgument() {
     assertThatThrownBy(() -> authService.login(null, null, "Passw0rd!"))
-            .isInstanceOf(IllegalArgumentException.class);
+        .isInstanceOf(IllegalArgumentException.class);
     verifyNoInteractions(accountLockoutService, keycloakAuthClient);
   }
 
@@ -276,7 +272,7 @@ class AuthServiceTest {
     when(keycloakAuthClient.getToken(eq(REALM), any())).thenThrow(unauthorized());
 
     assertThatThrownBy(() -> authService.login("user@example.com", null, "wrong"))
-            .isInstanceOf(AuthenticationException.class);
+        .isInstanceOf(AuthenticationException.class);
 
     verify(accountLockoutService).recordFailedLogin("user@example.com");
   }
@@ -286,7 +282,7 @@ class AuthServiceTest {
     when(keycloakAuthClient.getToken(eq(REALM), any())).thenThrow(serverError());
 
     assertThatThrownBy(() -> authService.login("user@example.com", null, "Passw0rd!"))
-            .isInstanceOf(KeycloakOperationException.class);
+        .isInstanceOf(KeycloakOperationException.class);
 
     verify(accountLockoutService, never()).recordFailedLogin(anyString());
   }
@@ -299,7 +295,7 @@ class AuthServiceTest {
   void refreshToken_notRevoked_returnsNewToken() {
     when(tokenRevocationService.isTokenRevoked("refresh-token")).thenReturn(false);
     when(keycloakAuthClient.getToken(eq(REALM), any()))
-            .thenReturn(Map.of("access_token", "new-at", "refresh_token", "new-rt", "expires_in", 300));
+        .thenReturn(Map.of("access_token", "new-at", "refresh_token", "new-rt", "expires_in", 300));
 
     TokenResponse result = authService.refreshToken("refresh-token");
 
@@ -311,7 +307,7 @@ class AuthServiceTest {
     when(tokenRevocationService.isTokenRevoked("refresh-token")).thenReturn(true);
 
     assertThatThrownBy(() -> authService.refreshToken("refresh-token"))
-            .isInstanceOf(AuthenticationException.class);
+        .isInstanceOf(AuthenticationException.class);
 
     verifyNoInteractions(keycloakAuthClient);
   }
@@ -351,7 +347,7 @@ class AuthServiceTest {
     when(googleIdTokenVerifier.verify("bad-token")).thenReturn(null);
 
     assertThatThrownBy(() -> authService.authenticateWithGoogle("bad-token"))
-            .isInstanceOf(com.example.commonlib.exception.GoogleTokenInvalidException.class);
+        .isInstanceOf(com.example.commonlib.exception.GoogleTokenInvalidException.class);
   }
 
   // ---------------------------------------------------------------------
@@ -360,10 +356,11 @@ class AuthServiceTest {
 
   @Test
   void changePassword_reusedPassword_throwsPasswordPolicyException() {
-    when(passwordValidationService.checkPasswordHistory("user-id", "OldPassw0rd!")).thenReturn(false);
+    when(passwordValidationService.checkPasswordHistory("user-id", "OldPassw0rd!"))
+        .thenReturn(false);
 
     assertThatThrownBy(() -> authService.changePassword("user-id", "old", "OldPassw0rd!"))
-            .isInstanceOf(com.example.commonlib.exception.PasswordPolicyException.class);
+        .isInstanceOf(com.example.commonlib.exception.PasswordPolicyException.class);
   }
 
   // ---------------------------------------------------------------------
@@ -372,20 +369,22 @@ class AuthServiceTest {
 
   private FeignException.Unauthorized unauthorized() {
     Request request =
-            Request.create(HttpMethod.POST, "url", Map.of(), null, StandardCharsets.UTF_8, new RequestTemplate());
+        Request.create(
+            HttpMethod.POST, "url", Map.of(), null, StandardCharsets.UTF_8, new RequestTemplate());
     return new FeignException.Unauthorized("unauthorized", request, null, Map.of());
   }
 
   private FeignException serverError() {
     Request request =
-            Request.create(HttpMethod.POST, "url", Map.of(), null, StandardCharsets.UTF_8, new RequestTemplate());
+        Request.create(
+            HttpMethod.POST, "url", Map.of(), null, StandardCharsets.UTF_8, new RequestTemplate());
     return FeignException.errorStatus(
-            "getToken",
-            feign.Response.builder()
-                    .status(503)
-                    .reason("Service Unavailable")
-                    .request(request)
-                    .headers(Map.of())
-                    .build());
+        "getToken",
+        feign.Response.builder()
+            .status(503)
+            .reason("Service Unavailable")
+            .request(request)
+            .headers(Map.of())
+            .build());
   }
 }

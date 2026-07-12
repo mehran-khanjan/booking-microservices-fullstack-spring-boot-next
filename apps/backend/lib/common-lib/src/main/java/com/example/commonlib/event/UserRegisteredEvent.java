@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRegisteredEvent {
-    private String userId;
-    private String email;
-    private String signupMethod; // "EMAIL", "PHONE", "GOOGLE"
+  private String userId;
+  private String email;
+  private String signupMethod; // "EMAIL", "PHONE", "GOOGLE"
 }

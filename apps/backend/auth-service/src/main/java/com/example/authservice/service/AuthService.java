@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -559,19 +558,15 @@ public class AuthService {
         signupMethod = methods.get(0);
       }
     }
-    UserRegisteredEvent event = new UserRegisteredEvent(
-            user.getId(),
-            user.getEmail(),
-            signupMethod
-    );
+    UserRegisteredEvent event =
+        new UserRegisteredEvent(user.getId(), user.getEmail(), signupMethod);
     outboxService.saveEvent(
-            event,
-            "USER_REGISTERED",
-            CommunicationRoutingKeys.EXCHANGE,
-            CommunicationRoutingKeys.USER_REGISTERED,
-            "User",
-            user.getId()
-    );
+        event,
+        "USER_REGISTERED",
+        CommunicationRoutingKeys.EXCHANGE,
+        CommunicationRoutingKeys.USER_REGISTERED,
+        "User",
+        user.getId());
     log.info("event=user_registered_queued userId={}", user.getId());
   }
 
@@ -613,7 +608,8 @@ public class AuthService {
     log.info("Password reset requested for email={}", mask(email));
 
     // 1. Check if user exists (optional, but we keep generic response)
-    // We'll still generate a token to avoid leaking existence, but we can skip sending email if not found.
+    // We'll still generate a token to avoid leaking existence, but we can skip sending email if not
+    // found.
     try {
       List<UserRepresentation> users = keycloakUserAdmin.findByEmail(email);
       if (users.isEmpty()) {
@@ -639,7 +635,8 @@ public class AuthService {
 
       log.info("event=password_reset_initiated email={} token={}", mask(email), token);
     } catch (KeycloakOperationException e) {
-      // If Keycloak is down, we cannot find user; log and return (fail silently to avoid enumeration)
+      // If Keycloak is down, we cannot find user; log and return (fail silently to avoid
+      // enumeration)
       log.error("event=password_reset_error email={}", mask(email), e);
     }
   }

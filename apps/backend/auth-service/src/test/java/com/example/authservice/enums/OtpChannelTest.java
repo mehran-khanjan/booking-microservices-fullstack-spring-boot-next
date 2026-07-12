@@ -6,18 +6,18 @@ import org.junit.jupiter.api.Test;
 
 class OtpChannelTest {
 
-    @Test
-    void email_hasEmailRedisPrefix() {
-        assertThat(OtpChannel.EMAIL.prefix()).isEqualTo("otp:email:");
-    }
+  @Test
+  void email_hasEmailRedisPrefix() {
+    assertThat(OtpChannel.EMAIL.prefix()).isEqualTo("otp:email:");
+  }
 
-    @Test
-    void phone_hasPhoneRedisPrefix() {
-        assertThat(OtpChannel.PHONE.prefix()).isEqualTo("otp:phone:");
-    }
+  @Test
+  void phone_hasPhoneRedisPrefix() {
+    assertThat(OtpChannel.PHONE.prefix()).isEqualTo("otp:phone:");
+  }
 
-    @Test
-    void hasExactlyTwoChannels() {
-        assertThat(OtpChannel.values()).containsExactly(OtpChannel.EMAIL, OtpChannel.PHONE);
-    }
+  @Test
+  void hasExactlyTwoChannels() {
+    assertThat(OtpChannel.values()).containsExactly(OtpChannel.EMAIL, OtpChannel.PHONE);
+  }
 }

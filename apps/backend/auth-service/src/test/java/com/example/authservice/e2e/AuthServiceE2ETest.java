@@ -8,8 +8,6 @@ import com.example.authservice.config.TestSecurityConfig;
 import com.example.authservice.dto.signin.TokenResponse;
 import com.example.authservice.service.AuthService;
 import com.example.authservice.service.keycloak.KeycloakUserAdminService;
-import com.example.commonlib.exception.AuthenticationException;
-import com.example.commonlib.exception.UserAlreadyExistsException;
 import com.example.commonlib.route.ApiRoutes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +43,7 @@ class AuthServiceE2ETest {
   @MockitoBean private AuthService authService;
 
   private static final TokenResponse SAMPLE_TOKEN =
-          TokenResponse.builder().accessToken("at").refreshToken("rt").expiresIn(300).build();
+      TokenResponse.builder().accessToken("at").refreshToken("rt").expiresIn(300).build();
 
   @BeforeEach
   void setUp() {
@@ -99,13 +97,13 @@ class AuthServiceE2ETest {
     when(authService.login(eq("e2e@example.com"), isNull(), anyString())).thenReturn(SAMPLE_TOKEN);
 
     var response =
-            restClient
-                    .post()
-                    .uri(ApiRoutes.Auth.SIGN_IN_EMAIL)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body("{\"email\":\"e2e@example.com\",\"password\":\"Passw0rd!\"}")
-                    .retrieve()
-                    .toEntity(String.class);
+        restClient
+            .post()
+            .uri(ApiRoutes.Auth.SIGN_IN_EMAIL)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body("{\"email\":\"e2e@example.com\",\"password\":\"Passw0rd!\"}")
+            .retrieve()
+            .toEntity(String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getHeaders().getFirst("Set-Cookie")).contains("refresh_token=rt");
@@ -134,12 +132,12 @@ class AuthServiceE2ETest {
   void changePassword_withoutBearerToken_returns401() {
     try {
       restClient
-              .post()
-              .uri(ApiRoutes.Auth.CHANGE_PASSWORD)
-              .contentType(MediaType.APPLICATION_JSON)
-              .body("{\"oldPassword\":\"old\",\"newPassword\":\"New1!\"}")
-              .retrieve()
-              .toEntity(String.class);
+          .post()
+          .uri(ApiRoutes.Auth.CHANGE_PASSWORD)
+          .contentType(MediaType.APPLICATION_JSON)
+          .body("{\"oldPassword\":\"old\",\"newPassword\":\"New1!\"}")
+          .retrieve()
+          .toEntity(String.class);
       org.junit.jupiter.api.Assertions.fail("Expected a 401 Unauthorized response");
     } catch (HttpClientErrorException ex) {
       assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);

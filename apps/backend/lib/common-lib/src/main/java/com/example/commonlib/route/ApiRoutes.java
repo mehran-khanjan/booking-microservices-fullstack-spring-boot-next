@@ -65,4 +65,12 @@ public final class ApiRoutes {
     public static final String ADMIN_DQL_SMS = BASE + "/admin/dlq/sms/replay";
     public static final String ADMIN_DQL_SMS_TS = ADMIN_DQL_SMS + "/";
   }
+
+  public static final class Flight {
+    public static final String BASE = ApiRoutes.BASE + "/flights";
+
+    public static final String FLIGHT_SEARCH = BASE + "/search";
+
+    public static final String FLIGHT_SEARCH_TS = FLIGHT_SEARCH + "/";
+  }
 }

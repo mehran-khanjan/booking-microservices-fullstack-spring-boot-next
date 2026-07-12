@@ -3,12 +3,11 @@ package com.example.authservice.service.otp;
 import com.example.commonlib.event.CommunicationRoutingKeys;
 import com.example.commonlib.event.OtpEmailEvent;
 import com.example.outboxlib.outbox.service.OutboxService;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 /**
  * Service responsible for queuing email OTP delivery intents via the transactional outbox pattern.
@@ -91,19 +90,18 @@ public class EmailService {
   public void sendPasswordResetEmail(String toEmail, String resetLink) {
     // You could create a dedicated event class, or reuse a generic map
     // For simplicity, we'll use a Map and let notification-service interpret it.
-    Map<String, String> payload = Map.of(
+    Map<String, String> payload =
+        Map.of(
             "toEmail", toEmail,
             "resetLink", resetLink,
-            "type", "PASSWORD_RESET"
-    );
+            "type", "PASSWORD_RESET");
     outboxService.saveEvent(
-            payload,
-            "PASSWORD_RESET",
-            CommunicationRoutingKeys.EXCHANGE,
-            CommunicationRoutingKeys.PASSWORD_RESET, // new routing key
-            "User",
-            toEmail
-    );
+        payload,
+        "PASSWORD_RESET",
+        CommunicationRoutingKeys.EXCHANGE,
+        CommunicationRoutingKeys.PASSWORD_RESET, // new routing key
+        "User",
+        toEmail);
     log.info("event=password_reset_queued to={}", mask(toEmail));
   }
 }

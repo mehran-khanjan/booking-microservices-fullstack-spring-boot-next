@@ -105,7 +105,7 @@ Using GitHub Actions with AWS.
 
 #### EPIC 1: User Management Service
 
-**Story 1.1: User Registration (Ticket ID 100)**
+**Story 1.1: User Registration (Ticket ID 99)**
 - **As a** new user,
 - **I want to** create an account using email or phone,
 - **So that** I can book flights and manage my reservations.
@@ -121,3 +121,15 @@ Using GitHub Actions with AWS.
 - 1.1.8 User can change password
 - 1.1.9 Refresh token
 - 1.1.10 Email/SMS verification required before account activation
+
+#### EPIC 2: Flight Search Service
+
+**Story 2.1: Basic Flight Search (Ticket ID 100)**
+- **As a** user
+- **I want to** search for flights by origin, destination, and date
+- **So that** I can find available flights for my trip
+
+**Acceptance Criteria:**
+- 2.1.1 Search with origin airport, destination airport, departure date
+- 2.1.2 Support for return date (round-trip) or one-way
+- 2.1.3 Cache popular routes for performance

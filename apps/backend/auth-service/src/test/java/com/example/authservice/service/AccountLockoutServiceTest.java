@@ -1,6 +1,5 @@
 package com.example.authservice.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -42,7 +41,8 @@ class AccountLockoutServiceTest {
 
     service.recordFailedLogin("user@example.com");
 
-    verify(redisTemplate).expire(eq("login:attempt:user@example.com"), eq(30L), eq(TimeUnit.MINUTES));
+    verify(redisTemplate)
+        .expire(eq("login:attempt:user@example.com"), eq(30L), eq(TimeUnit.MINUTES));
     verify(valueOperations, never()).set(eq("lockout:user@example.com"), any(), anyLong(), any());
   }
 

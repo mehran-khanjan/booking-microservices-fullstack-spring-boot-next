@@ -11,7 +11,6 @@ import com.example.authservice.config.TestSecurityConfig;
 import com.example.authservice.dto.signin.TokenResponse;
 import com.example.authservice.service.AuthService;
 import com.example.authservice.service.keycloak.KeycloakUserAdminService;
-import com.example.commonlib.exception.AuthenticationException;
 import com.example.commonlib.exception.UserAlreadyExistsException;
 import com.example.commonlib.route.ApiRoutes;
 import org.junit.jupiter.api.Test;
@@ -42,33 +41,33 @@ class AuthControllerIntegrationTest {
   @MockitoBean private AuthService authService;
 
   private static final TokenResponse SAMPLE_TOKEN =
-          TokenResponse.builder().accessToken("at").refreshToken("rt").expiresIn(300).build();
+      TokenResponse.builder().accessToken("at").refreshToken("rt").expiresIn(300).build();
 
   @Test
   void signUp_isPubliclyAccessible_andReturns201() throws Exception {
     when(authService.registerUser("integration@example.com", "Passw0rd!"))
-            .thenReturn("33333333-3333-3333-3333-333333333333");
+        .thenReturn("33333333-3333-3333-3333-333333333333");
 
     mockMvc
         .perform(
             post(ApiRoutes.Auth.SIGN_UP_EMAIL)
                 .contentType("application/json")
                 .content("{\"email\":\"integration@example.com\",\"password\":\"Passw0rd!\"}"))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.data.userId").value("33333333-3333-3333-3333-333333333333"));
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.data.userId").value("33333333-3333-3333-3333-333333333333"));
   }
 
   @Test
   void signUp_duplicateUser_returns409() throws Exception {
     when(authService.registerUser("dup@example.com", "Passw0rd!"))
-            .thenThrow(new UserAlreadyExistsException("User already exists"));
+        .thenThrow(new UserAlreadyExistsException("User already exists"));
 
     mockMvc
         .perform(
             post(ApiRoutes.Auth.SIGN_UP_EMAIL)
                 .contentType("application/json")
                 .content("{\"email\":\"dup@example.com\",\"password\":\"Passw0rd!\"}"))
-            .andExpect(status().isConflict());
+        .andExpect(status().isConflict());
   }
 
   @Test
@@ -100,35 +99,35 @@ class AuthControllerIntegrationTest {
   @Test
   void initiatePhoneSignUp_isPubliclyAccessible_andReturns201() throws Exception {
     when(authService.registerUserWithPhone(eq("+15551234567"), anyString()))
-            .thenReturn("55555555-5555-5555-5555-555555555555");
+        .thenReturn("55555555-5555-5555-5555-555555555555");
 
     mockMvc
-            .perform(
-                    post(ApiRoutes.Auth.SIGN_UP_PHONE)
-                            .contentType("application/json")
-                            .content("{\"phoneNumber\":\"+15551234567\",\"password\":\"Passw0rd!\"}"))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.data.userId").value("55555555-5555-5555-5555-555555555555"));
+        .perform(
+            post(ApiRoutes.Auth.SIGN_UP_PHONE)
+                .contentType("application/json")
+                .content("{\"phoneNumber\":\"+15551234567\",\"password\":\"Passw0rd!\"}"))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.data.userId").value("55555555-5555-5555-5555-555555555555"));
   }
 
   @Test
   void initiatePhoneSignUp_invalidPhoneNumber_returns400() throws Exception {
     mockMvc
-            .perform(
-                    post(ApiRoutes.Auth.SIGN_UP_PHONE)
-                            .contentType("application/json")
-                            .content("{\"phoneNumber\":\"not-a-phone\",\"password\":\"Passw0rd!\"}"))
-            .andExpect(status().isBadRequest());
+        .perform(
+            post(ApiRoutes.Auth.SIGN_UP_PHONE)
+                .contentType("application/json")
+                .content("{\"phoneNumber\":\"not-a-phone\",\"password\":\"Passw0rd!\"}"))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
   void authenticateWithGoogle_blankIdToken_returns400() throws Exception {
     mockMvc
-            .perform(
-                    post(ApiRoutes.Auth.SIGN_IN_GOOGLE)
-                            .contentType("application/json")
-                            .content("{\"idToken\":\"\"}"))
-            .andExpect(status().isBadRequest());
+        .perform(
+            post(ApiRoutes.Auth.SIGN_IN_GOOGLE)
+                .contentType("application/json")
+                .content("{\"idToken\":\"\"}"))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -139,19 +138,19 @@ class AuthControllerIntegrationTest {
   @Test
   void signOut_withoutCookie_stillReturns200_andClearsCookie() throws Exception {
     mockMvc
-            .perform(post(ApiRoutes.Auth.SIGN_OUT))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.success").value(true));
+        .perform(post(ApiRoutes.Auth.SIGN_OUT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.success").value(true));
   }
 
   @Test
   void changePassword_withoutBearerToken_returns401() throws Exception {
     mockMvc
-            .perform(
-                    post(ApiRoutes.Auth.CHANGE_PASSWORD)
-                            .contentType("application/json")
-                            .content("{\"oldPassword\":\"old\",\"newPassword\":\"New1!\"}"))
-            .andExpect(status().isUnauthorized());
+        .perform(
+            post(ApiRoutes.Auth.CHANGE_PASSWORD)
+                .contentType("application/json")
+                .content("{\"oldPassword\":\"old\",\"newPassword\":\"New1!\"}"))
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -159,12 +158,12 @@ class AuthControllerIntegrationTest {
     doNothing().when(authService).changePassword("user-sub-123", "old", "New1!");
 
     mockMvc
-            .perform(
-                    post(ApiRoutes.Auth.CHANGE_PASSWORD)
-                            .with(jwt().jwt(jwt -> jwt.subject("user-sub-123")))
-                            .contentType("application/json")
-                            .content("{\"oldPassword\":\"old\",\"newPassword\":\"New1!\"}"))
-            .andExpect(status().isOk());
+        .perform(
+            post(ApiRoutes.Auth.CHANGE_PASSWORD)
+                .with(jwt().jwt(jwt -> jwt.subject("user-sub-123")))
+                .contentType("application/json")
+                .content("{\"oldPassword\":\"old\",\"newPassword\":\"New1!\"}"))
+        .andExpect(status().isOk());
 
     verify(authService).changePassword("user-sub-123", "old", "New1!");
   }
