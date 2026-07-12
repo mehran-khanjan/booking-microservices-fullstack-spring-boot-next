@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * Service responsible for queuing email OTP delivery intents via the transactional outbox pattern.
  *
@@ -83,5 +85,25 @@ public class EmailService {
   private String mask(String email) {
     int at = email.indexOf('@');
     return at <= 1 ? "***@***" : email.charAt(0) + "***" + email.substring(at);
+  }
+
+  // in EmailService.java
+  public void sendPasswordResetEmail(String toEmail, String resetLink) {
+    // You could create a dedicated event class, or reuse a generic map
+    // For simplicity, we'll use a Map and let notification-service interpret it.
+    Map<String, String> payload = Map.of(
+            "toEmail", toEmail,
+            "resetLink", resetLink,
+            "type", "PASSWORD_RESET"
+    );
+    outboxService.saveEvent(
+            payload,
+            "PASSWORD_RESET",
+            CommunicationRoutingKeys.EXCHANGE,
+            CommunicationRoutingKeys.PASSWORD_RESET, // new routing key
+            "User",
+            toEmail
+    );
+    log.info("event=password_reset_queued to={}", mask(toEmail));
   }
 }

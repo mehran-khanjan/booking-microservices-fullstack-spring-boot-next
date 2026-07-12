@@ -284,4 +284,36 @@ public class KeycloakUserAdminService {
     }
     throw new KeycloakOperationException("Auth service temporarily unavailable");
   }
+
+  // in KeycloakUserAdminService.java
+
+  @CircuitBreaker(name = "keycloakAdmin", fallbackMethod = "getUserByIdFallback")
+  @Retry(name = "keycloakAdmin")
+  public UserRepresentation getUserById(String userId) {
+    return realm().users().get(userId).toRepresentation();
+  }
+
+  private UserRepresentation getUserByIdFallback(String userId, Throwable t) {
+    log.error("event=kc_circuit_open op=getUserById userId={}", userId, t);
+    if (t instanceof IllegalArgumentException) throw (IllegalArgumentException) t;
+    throw new KeycloakOperationException("Auth service temporarily unavailable");
+  }
+
+  @CircuitBreaker(name = "keycloakAdmin", fallbackMethod = "updatePasswordFallback")
+  @Retry(name = "keycloakAdmin")
+  public void updatePassword(String userId, String newPassword) {
+    UserResource userResource = realm().users().get(userId);
+    CredentialRepresentation credential = new CredentialRepresentation();
+    credential.setType(CredentialRepresentation.PASSWORD);
+    credential.setValue(newPassword);
+    credential.setTemporary(false);
+    userResource.resetPassword(credential);
+    log.info("event=kc_password_updated userId={}", userId);
+  }
+
+  private void updatePasswordFallback(String userId, String newPassword, Throwable t) {
+    log.error("event=kc_circuit_open op=updatePassword userId={}", userId, t);
+    if (t instanceof IllegalArgumentException) throw (IllegalArgumentException) t;
+    throw new KeycloakOperationException("Auth service temporarily unavailable");
+  }
 }

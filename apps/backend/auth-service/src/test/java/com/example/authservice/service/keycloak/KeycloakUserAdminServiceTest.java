@@ -1,4 +1,4 @@
-package com.example.authservice.service;
+package com.example.authservice.service.keycloak;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -9,7 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.example.authservice.service.keycloak.KeycloakUserAdminService;
 import com.example.commonlib.exception.KeycloakOperationException;
 import com.example.commonlib.exception.UserAlreadyExistsException;
 import jakarta.ws.rs.core.Response;

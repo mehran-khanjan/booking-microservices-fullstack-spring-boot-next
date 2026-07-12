@@ -133,6 +133,7 @@ app:
     allowed-origins:
       - http://127.0.0.1:3000
       - http://127.0.0.1:8080
+  frontend-url: http://localhost:3000
 
 keycloak:
   admin:
@@ -163,6 +164,8 @@ google:
 
 password:
   min-length: 8
+  reset:
+    token-expiry-minutes: 60
 
 account:
   lockout:

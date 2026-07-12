@@ -51,4 +51,8 @@ public final class CommunicationRoutingKeys {
 
   /** Dead‑letter queue for OTP SMS events. */
   public static final String DLQ_OTP_SMS = "communication.otp.sms.dlq";
+
+  public static final String USER_REGISTERED = "communication.user.registered";
+
+  public static final String PASSWORD_RESET = "communication.password.reset";
 }

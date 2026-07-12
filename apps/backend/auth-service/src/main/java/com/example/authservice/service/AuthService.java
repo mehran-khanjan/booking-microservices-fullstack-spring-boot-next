@@ -6,8 +6,12 @@ import com.example.authservice.enums.OtpChannel;
 import com.example.authservice.feign.KeycloakAuthClient;
 import com.example.authservice.service.keycloak.KeycloakTokenExchangeService;
 import com.example.authservice.service.keycloak.KeycloakUserAdminService;
+import com.example.authservice.service.otp.EmailService;
 import com.example.authservice.service.otp.OtpService;
+import com.example.commonlib.event.CommunicationRoutingKeys;
+import com.example.commonlib.event.UserRegisteredEvent;
 import com.example.commonlib.exception.*;
+import com.example.outboxlib.outbox.service.OutboxService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import feign.FeignException;
@@ -17,10 +21,14 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -102,6 +110,16 @@ public class AuthService {
   /** Keycloak OAuth2 client secret. */
   @Value("${keycloak.client-secret}")
   private String clientSecret;
+
+  private final OutboxService outboxService;
+  private final StringRedisTemplate redisTemplate; // or RedisTemplate<String,String>
+  private final EmailService emailService; // already present, ensure it's used for reset emails
+
+  @Value("${app.frontend-url}")
+  private String frontendUrl;
+
+  @Value("${password.reset.token-expiry-minutes:60}")
+  private int resetTokenExpiryMinutes;
 
   /**
    * Registers a new user using email and password.
@@ -534,7 +552,27 @@ public class AuthService {
    * @param user the newly created user representation
    */
   private void publishUserRegisteredEvent(UserRepresentation user) {
-    // TODO: publish via transactional outbox -> RabbitMQ (user.registered)
+    String signupMethod = "EMAIL"; // or "PHONE" / "GOOGLE" – derive from attributes
+    if (user.getAttributes() != null) {
+      List<String> methods = user.getAttributes().get("signupMethod");
+      if (methods != null && !methods.isEmpty()) {
+        signupMethod = methods.get(0);
+      }
+    }
+    UserRegisteredEvent event = new UserRegisteredEvent(
+            user.getId(),
+            user.getEmail(),
+            signupMethod
+    );
+    outboxService.saveEvent(
+            event,
+            "USER_REGISTERED",
+            CommunicationRoutingKeys.EXCHANGE,
+            CommunicationRoutingKeys.USER_REGISTERED,
+            "User",
+            user.getId()
+    );
+    log.info("event=user_registered_queued userId={}", user.getId());
   }
 
   /**
@@ -572,9 +610,38 @@ public class AuthService {
    * @throws UnsupportedOperationException always thrown (not yet implemented)
    */
   public void initiatePasswordReset(String email) {
-    log.info("Password reset initiated for email={}", mask(email));
-    // TODO: generate reset token in Redis + send via notification-service
-    throw new UnsupportedOperationException("Not yet implemented");
+    log.info("Password reset requested for email={}", mask(email));
+
+    // 1. Check if user exists (optional, but we keep generic response)
+    // We'll still generate a token to avoid leaking existence, but we can skip sending email if not found.
+    try {
+      List<UserRepresentation> users = keycloakUserAdmin.findByEmail(email);
+      if (users.isEmpty()) {
+        log.info("Password reset requested for non-existent email={}", mask(email));
+        // Return early, but we still want to log and not send email.
+        return;
+      }
+      UserRepresentation user = users.get(0);
+      String userId = user.getId();
+
+      // 2. Generate secure token
+      String token = UUID.randomUUID().toString();
+
+      // 3. Store token in Redis with TTL (userId as value)
+      String key = "password-reset:" + token;
+      redisTemplate.opsForValue().set(key, userId, resetTokenExpiryMinutes, TimeUnit.MINUTES);
+
+      // 4. Build reset link
+      String resetLink = frontendUrl + "/reset-password?token=" + token;
+
+      // 5. Send email via outbox (use EmailService method)
+      emailService.sendPasswordResetEmail(email, resetLink);
+
+      log.info("event=password_reset_initiated email={} token={}", mask(email), token);
+    } catch (KeycloakOperationException e) {
+      // If Keycloak is down, we cannot find user; log and return (fail silently to avoid enumeration)
+      log.error("event=password_reset_error email={}", mask(email), e);
+    }
   }
 
   /**
@@ -596,8 +663,33 @@ public class AuthService {
     if (!passwordValidationService.checkPasswordHistory(userId, newPassword)) {
       throw new PasswordPolicyException("Cannot reuse recent passwords");
     }
-    // TODO: verify oldPassword against Keycloak, then update credential
-    throw new UnsupportedOperationException("Not yet implemented");
+
+    // 1. Get user by ID to obtain username (email or phone)
+    UserRepresentation user = keycloakUserAdmin.getUserById(userId);
+    String username = user.getUsername(); // this is the email or phone used as login
+
+    // 2. Verify old password by attempting a token request
+    MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+    formData.add("username", username);
+    formData.add("grant_type", "password");
+    formData.add("client_id", clientId);
+    formData.add("client_secret", clientSecret);
+    formData.add("password", oldPassword);
+
+    try {
+      keycloakAuthClient.getToken(realm, formData);
+    } catch (FeignException.Unauthorized e) {
+      log.warn("event=change_password_old_password_invalid userId={}", userId);
+      throw new AuthenticationException("Old password is incorrect");
+    } catch (FeignException e) {
+      log.error("event=change_password_keycloak_error userId={}", userId, e);
+      throw new KeycloakOperationException("Unable to verify password. Please try again.");
+    }
+
+    // 3. Update password via admin API
+    keycloakUserAdmin.updatePassword(userId, newPassword);
+
+    log.info("event=password_changed_success userId={}", userId);
   }
 
   /**

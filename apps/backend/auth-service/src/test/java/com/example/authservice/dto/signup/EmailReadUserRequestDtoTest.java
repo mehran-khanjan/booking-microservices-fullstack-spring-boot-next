@@ -1,8 +1,7 @@
-package com.example.authservice.dto;
+package com.example.authservice.dto.signup;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.example.authservice.dto.signup.EmailReadUserRequestDto;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

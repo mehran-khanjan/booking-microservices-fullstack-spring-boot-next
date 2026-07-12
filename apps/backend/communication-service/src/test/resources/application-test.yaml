@@ -1,0 +1,124 @@
+spring:
+  application:
+    name: communication-service
+  output:
+    ansi:
+      enabled: always
+
+  web:
+    resources:
+      add-mappings: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/booking-app-realm
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      timeout: 60000
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: false
+        database-platform: org.hibernate.community.dialect.SQLiteDialect
+        jdbc:
+          time_zone: UTC
+
+  datasource:
+    url: jdbc:sqlite:file:communicationtestdb?mode=memory&cache=shared
+    driver-class-name: org.sqlite.JDBC
+    username: ""
+    password: ""
+    hikari:
+      maximum-pool-size: 1
+      connection-timeout: 30000
+
+  flyway:
+    enabled: false
+    baseline-on-migrate: true
+    url: jdbc:sqlite:file:communicationtestdb?mode=memory&cache=shared
+    driver-class-name: org.sqlite.JDBC
+    user:
+    password:
+    locations: classpath:db/migration/sqlite
+
+    # application-test.yaml — add under `spring:`
+  main:
+    allow-bean-definition-overriding: true
+
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false   # don't spin up @RabbitListener containers against a broker that isn't there
+
+server:
+  port: 0
+
+eureka:
+  client:
+    fetch-registry: false
+    register-with-eureka: false
+    enabled: false
+
+logging:
+  level:
+    org:
+      keycloak: WARN
+      springframework:
+        security: WARN
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      sendgrid:
+        sliding-window-type: TIME_BASED
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+      twilio:
+        sliding-window-type: TIME_BASED
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+  retry:
+    instances:
+      sendgrid:
+        max-attempts: 1
+        wait-duration: 100ms
+      twilio:
+        max-attempts: 1
+        wait-duration: 100ms
+
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - http://localhost:8080
+
+keycloak:
+  realm: booking-app-realm
+  client-id: communication-service
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:your-client-secret-here}
+  server-url: http://localhost:8081
+
+communication:
+  max-redeliveries: 3
+
+sendgrid:
+  api-key: test-sendgrid-key
+  from-email: no-reply@booking-app.com
+  from-name: Booking App Test
+
+twilio:
+  account-sid: ACtest0000000000000000000000000
+  auth-token: test-auth-token
+  phone-number: "+15005550006"
