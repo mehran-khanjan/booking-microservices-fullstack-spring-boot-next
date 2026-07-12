@@ -3,7 +3,6 @@ package com.example.authservice.service.keycloak;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -57,9 +56,11 @@ class KeycloakTokenExchangeServiceTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     when(valueOperations.get("kc:service-token")).thenReturn(null);
     when(keycloakAuthClient.getToken(eq(REALM), argThat(isClientCredentialsForm())))
-        .thenReturn(Map.of("access_token", "service-token", "refresh_token", "rt", "expires_in", 300));
+        .thenReturn(
+            Map.of("access_token", "service-token", "refresh_token", "rt", "expires_in", 300));
     when(keycloakAuthClient.getToken(eq(REALM), argThat(isTokenExchangeForm())))
-        .thenReturn(Map.of("access_token", "user-at", "refresh_token", "user-rt", "expires_in", 300));
+        .thenReturn(
+            Map.of("access_token", "user-at", "refresh_token", "user-rt", "expires_in", 300));
 
     TokenResponse result = service.exchangeTokenForUser("user-id");
 
@@ -72,7 +73,8 @@ class KeycloakTokenExchangeServiceTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     when(valueOperations.get("kc:service-token")).thenReturn("cached-service-token");
     when(keycloakAuthClient.getToken(eq(REALM), argThat(isTokenExchangeForm())))
-        .thenReturn(Map.of("access_token", "user-at", "refresh_token", "user-rt", "expires_in", 300));
+        .thenReturn(
+            Map.of("access_token", "user-at", "refresh_token", "user-rt", "expires_in", 300));
 
     TokenResponse result = service.exchangeTokenForUser("user-id");
 
@@ -107,18 +109,21 @@ class KeycloakTokenExchangeServiceTest {
   private org.mockito.ArgumentMatcher<MultiValueMap<String, String>> isTokenExchangeForm() {
     return form ->
         form != null
-            && "urn:ietf:params:oauth:grant-type:token-exchange".equals(form.getFirst("grant_type"));
+            && "urn:ietf:params:oauth:grant-type:token-exchange"
+                .equals(form.getFirst("grant_type"));
   }
 
   private FeignException.Unauthorized unauthorized() {
     Request request =
-        Request.create(HttpMethod.POST, "url", Map.of(), null, StandardCharsets.UTF_8, new RequestTemplate());
+        Request.create(
+            HttpMethod.POST, "url", Map.of(), null, StandardCharsets.UTF_8, new RequestTemplate());
     return new FeignException.Unauthorized("unauthorized", request, null, Map.of());
   }
 
   private FeignException serverError() {
     Request request =
-        Request.create(HttpMethod.POST, "url", Map.of(), null, StandardCharsets.UTF_8, new RequestTemplate());
+        Request.create(
+            HttpMethod.POST, "url", Map.of(), null, StandardCharsets.UTF_8, new RequestTemplate());
     return FeignException.errorStatus(
         "getToken",
         feign.Response.builder()

@@ -178,3 +178,60 @@ Here is a one-line explanation for each file:
 - **CommunicationConsumer.java** – Implements the inbox‑pattern consumer: claims inbox records, processes events, and updates status (idempotent, failure tracking).
 
 - **GlobalExceptionHandler.java** – Handles all uncaught exceptions, logs them with trace ID, and returns a standardized 500 error response.
+
+## Acceptance Criteria 2.1.1 to 2.1.3
+
+**Note 1:** Flight service new files:
+
+Here is a one-line explanation for each file:
+
+- **FlightSearchLegService.java** – Handles a single leg search with Redis caching, JPA Specifications, and pagination, returning a fully populated response.
+
+- **FlightSearchService.java** – Orchestrates one‑way or round‑trip searches; executes outbound and return leg searches in parallel with timeout handling and context propagation.
+
+- **FlightSpecification.java** – Provides static JPA `Specification` methods for building dynamic flight filters (origin, destination, price, airline, aircraft type, cabin availability).
+
+- **AircraftTypeRepository.java** – Spring Data JPA repository for `AircraftType` entities (aircraft models with seat configurations).
+
+- **AirportRepository.java** – JPA repository for `Airport` with methods to find by IATA code (case‑sensitive/insensitive), by city, and a full‑text search across name, city, and code.
+
+- **AirlineRepository.java** – JPA repository for `Airline` entities, providing basic CRUD operations.
+
+- **FlightRepository.java** – Advanced JPA repository for `Flight` with custom fetch queries, pessimistic/optimistic locking, and atomic seat reservation/release updates.
+
+- **Flight.java** – Core entity representing a scheduled flight with all operational fields, status enum, and optimistic locking (`@Version`).
+
+- **Airport.java** – Entity storing IATA/ICAO codes, location, timezone, and geographic coordinates for airports.
+
+- **AircraftType.java** – Entity defining aircraft model, manufacturer, and seat distribution across economy, premium economy, business, and first class.
+
+- **Airline.java** – Entity for airline with IATA code, name, country, logo URL, and an active flag.
+
+- **DataFakerLoader.java** – Populates the database with realistic test data (500+ flights, airports, airlines, aircraft types) when running under the `dev` profile.
+
+- **ContextPropagatingSupplier.java** – Utility that wraps a `Supplier` to propagate MDC and SecurityContext to a different thread (used for async leg searches).
+
+- **CorsProperties.java** – Configuration properties (`app.cors.allowed-origins`) for CORS allowed origins.
+
+- **ErrorCodes.java** – Central registry of error codes (e.g., `FLIGHT_001`, `SEARCH_TIMEOUT_001`) for consistent error handling.
+
+- **SecurityConfig.java** – Spring Security configuration with OAuth2 resource server, JWT authentication converter (extracts Keycloak realm roles), and CORS.
+
+- **AsyncExecutorConfig.java** – Provides a dedicated `ThreadPoolTaskExecutor` bean for async flight searches, with back‑pressure using `CallerRunsPolicy`.
+
+- **FlightMapper.java** – Maps `Flight` entities to `FlightResponseDto`, flattening nested relationships and formatting duration.
+
+- **FlightSearchResponseDto.java** – Search response DTO containing outbound flights, optional return flights, metadata, and pagination info.
+
+- **FlightSearchRequestDto.java** – Search request DTO with validation constraints and all optional filters (price, airline, cabin, sorting, pagination).
+
+- **FlightResponseDto.java** – Detailed flight response DTO with nested objects for airline, airports, pricing, and seat availability.
+
+- **FlightServiceApplication.java** – Spring Boot main class with `@EnableDiscoveryClient` for service registration.
+
+- **FlightSearchController.java** – REST controller exposing flight search endpoints with `@PreAuthorize`, `@RateLimiter`, and `@Idempotent` annotations.
+
+- **GlobalExceptionHandler.java** – Central `@RestControllerAdvice` that catches validation errors, malformed JSON, and all other exceptions, returning structured `ApiResponse` errors.
+
+- **BusinessException.java** – Custom runtime exception for domain‑specific errors, carrying an error code from `ErrorCodes`.
+

@@ -2,11 +2,11 @@ package com.example.communicationservice.config;
 
 import com.example.commonlib.event.OtpEmailEvent;
 import com.example.commonlib.event.OtpSmsEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.MessageConverter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Custom {@link MessageConverter} that deserialises incoming RabbitMQ messages based on an {@code

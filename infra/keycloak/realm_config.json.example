@@ -288,6 +288,24 @@
         "access.token.lifespan": "3600"
       },
       "defaultClientScopes": ["roles", "profile", "email","token-exchange"]
+    },
+    {
+      "clientId": "flight-service",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "your-client-secret-here",
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "serviceAccountsEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"],
+      "attributes": {
+        "access.token.lifespan": "3600"
+      },
+      "defaultClientScopes": ["roles", "profile", "email","token-exchange"]
     }
   ],
   "users": [

@@ -37,7 +37,7 @@ spring:
     username: ""
     password: ""
     hikari:
-      maximum-pool-size: 1
+      maximum-pool-size: 10
       connection-timeout: 30000
 
     # Flyway - Sqlite, run against the same in-memory database as above
@@ -96,8 +96,8 @@ resilience4j:
   ratelimiter:
     instances:
       globalRateLimiter:
-        limit-for-period: 3
-        limit-refresh-period: 60m
+        limit-for-period: 10
+        limit-refresh-period: 1m
         timeout-duration: 0s
 
 app:

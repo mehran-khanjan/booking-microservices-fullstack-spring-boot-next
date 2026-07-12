@@ -34,8 +34,7 @@ class TokenRevocationServiceTest {
 
     service.revokeToken("short-token");
 
-    verify(valueOperations)
-        .set("revoked:token:short-token", "revoked", 86400L, TimeUnit.SECONDS);
+    verify(valueOperations).set("revoked:token:short-token", "revoked", 86400L, TimeUnit.SECONDS);
   }
 
   @Test
