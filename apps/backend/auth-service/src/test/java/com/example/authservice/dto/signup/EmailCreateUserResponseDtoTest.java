@@ -1,8 +1,7 @@
-package com.example.authservice.dto;
+package com.example.authservice.dto.signup;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.example.authservice.dto.signup.EmailCreateUserResponseDto;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
