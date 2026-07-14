@@ -1,5 +1,34 @@
 # Booking App - Microservices Architecture
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Technologies](#technologies)
+- [Key Features](#key-features)
+  - [Authentication & User Management](#authentication--user-management)
+  - [Flight Search](#flight-search)
+  - [Booking & Payment](#booking--payment)
+  - [Reliable Messaging (Inbox-Outbox Pattern)](#reliable-messaging-inbox-outbox-pattern)
+  - [Observability](#observability)
+- [Technology Stack](#technology-stack)
+- [System Design Chart](#system-design-chart)
+- [Development Process](#development-process)
+- [Quick Start](#quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Run with Docker Compose](#run-with-docker-compose)
+  - [Configuration](#configuration)
+  - [Development Profiles](#development-profiles)
+- [API Documentation](#api-documentation)
+- [Testing](#testing)
+- [Contributing](#contributing)
+  - [Branch Strategy](#branch-strategy)
+  - [Commit Convention](#commit-convention)
+  - [Code Quality](#code-quality)
+- [License](#license)
+
+---
+
 ## Overview
 
 A production-ready flight booking platform built with a microservices architecture. The system provides end-to-end flight search, booking, payment processing, and user management capabilities with a focus on reliability, scalability, and maintainability.
