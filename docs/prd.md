@@ -142,7 +142,7 @@ Using GitHub Actions with AWS.
 
 ### User Stories
 
-**Story 3.1: Create Flight Booking**
+**Story 3.1: Create Flight Booking (Ticket ID 101)**
 - **As a** user
 - **I want to** book selected flight(s)
 - **So that** I can secure my seat on the flight
