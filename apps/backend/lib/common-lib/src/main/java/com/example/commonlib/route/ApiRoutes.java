@@ -73,4 +73,17 @@ public final class ApiRoutes {
 
     public static final String FLIGHT_SEARCH_TS = FLIGHT_SEARCH + "/";
   }
+
+  public static final class Booking {
+    public static final String BASE = ApiRoutes.BASE + "/bookings";
+
+    // Handled by BASE already
+    // public static final String BOOKING = BASE + "";
+
+    public static final String BOOKING_TS = BASE + "/";
+
+    public static final String PAYMENT = BASE + "/payment";
+
+    public static final String PAYMENT_TS = PAYMENT + "/";
+  }
 }

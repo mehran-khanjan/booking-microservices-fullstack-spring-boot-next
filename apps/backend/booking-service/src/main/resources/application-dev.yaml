@@ -1,0 +1,157 @@
+# ============================================================================
+# Application configuration for the 'dev' profile.
+# Overrides default properties for local development.
+# ============================================================================
+spring:
+  application:
+    name: booking-service
+  output:
+    ansi:
+      enabled: always
+
+  # Handling 404 error – disable static resource mappings to let the controller handle all 404s
+  web:
+    resources:
+      add-mappings: false
+
+  # Security – OAuth2 resource server with Keycloak
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://127.0.0.1:8081/realms/booking-app-realm
+
+  # Redis configuration (for distributed locks)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      timeout: 60000
+
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    timeout: 60000
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+
+  # JPA & SQLite database
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        database-platform: org.hibernate.community.dialect.SQLiteDialect
+        jdbc:
+          time_zone: UTC
+
+  datasource:
+    url: jdbc:sqlite:booking-booking.db
+    driver-class-name: org.sqlite.JDBC
+    username: ""
+    password: ""
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000
+
+  # Flyway migration for SQLite
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    url: jdbc:sqlite:booking-booking.db
+    driver-class-name: org.sqlite.JDBC
+    user:
+    password:
+    locations: classpath:db/migration/sqlite
+
+# Server port
+server:
+  port: 8085
+
+# Eureka client configuration for service discovery
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+    enabled: true
+    registry-fetch-interval-seconds: 5
+    initial-instance-info-replication-interval-seconds: 5
+  instance:
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 10
+
+# Logging levels for debugging Keycloak and Spring Security
+logging:
+  level:
+    org:
+      keycloak: DEBUG
+      springframework:
+        security: DEBUG
+
+# Resilience4j circuit‑breaker and rate‑limiter settings
+resilience4j:
+  circuitbreaker:
+    instances:
+      bookingService:
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 2s
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+      paymentService:
+        failure-rate-threshold: 50
+        sliding-window-size: 10
+        wait-duration-in-open-state: 60s
+  ratelimiter:
+    instances:
+      globalRateLimiter:
+        limit-for-period: 10
+        limit-refresh-period: 1m
+        timeout-duration: 0s
+
+# CORS allowed origins
+app:
+  cors:
+    allowed-origins:
+      - http://127.0.0.1:3000
+      - http://127.0.0.1:8080
+
+# Keycloak client configuration
+keycloak:
+  realm: booking-app-realm
+  client-id: booking-service
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:your-client-secret-here}
+  server-url: http://127.0.0.1:8081
+
+# gRPC client for the Flight service
+grpc:
+  client:
+    flight-service:
+      address: 'static://localhost:9090'   # or use service discovery
+      negotiation-type: plaintext
+
+# Payment gateway credentials (placeholder values, override via environment)
+payment:
+  stripe:
+    api-key: ${STRIPE_API_KEY:sk_test_placeholder}
+    webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_placeholder}
+  paypal:
+    client-id: ${PAYPAL_CLIENT_ID:paypal_client_id_placeholder}
+    client-secret: ${PAYPAL_CLIENT_SECRET:paypal_client_secret_placeholder}
+    base-url: ${PAYPAL_BASE_URL:https://api-m.sandbox.paypal.com}
+
+# Booking hold expiry sweep interval (milliseconds)
+booking:
+  hold-expiry:
+    sweep-interval-ms: ${HOLD_EXPIRY_SWEEP_INTERVAL_MS:60000}
