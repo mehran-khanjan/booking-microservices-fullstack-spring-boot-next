@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package com.example.flightservice.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.example.flightservice.grpc";
+option java_outer_classname = "FlightServiceProto";
+
+service FlightService {
+  rpc GetFlights (FlightRequest) returns (FlightResponse);
+  rpc ReserveSeats (ReserveRequest) returns (ReserveResponse);
+  rpc ReleaseSeats (ReleaseRequest) returns (ReleaseResponse);
+}
+
+message FlightRequest {
+  repeated int64 flight_ids = 1;
+  bool include_availability = 2;  // always true for booking
+}
+
+message FlightResponse {
+  repeated Flight flights = 1;
+}
+
+message Flight {
+  int64 id = 1;
+  string flight_number = 2;
+  int64 airline_id = 3;
+  string airline_name = 4;
+  int64 origin_airport_id = 5;
+  string origin_airport_code = 6;
+  int64 destination_airport_id = 7;
+  string destination_airport_code = 8;
+  string departure_date = 9;          // ISO date
+  string departure_time = 10;         // HH:mm
+  string arrival_date = 11;
+  string arrival_time = 12;
+  string status = 13;                 // SCHEDULED, CANCELLED, etc.
+  int32 available_seats = 14;
+  int32 economy_available = 15;
+  int32 premium_economy_available = 16;
+  int32 business_available = 17;
+  int32 first_class_available = 18;
+  double base_price_economy = 19;
+  double base_price_premium_economy = 20;
+  double base_price_business = 21;
+  double base_price_first_class = 22;
+}
+
+message ReserveRequest {
+  int64 flight_id = 1;
+  string booking_reference = 2;      // idempotency key
+  int32 total_seats = 3;
+  map<string, int32> cabin_seats = 4; // e.g., {"ECONOMY": 2, "BUSINESS": 1}
+}
+
+message ReserveResponse {
+  bool success = 1;
+  string message = 2;
+  int32 reserved_seats = 3;
+  // optional details
+}
+
+message ReleaseRequest {
+  int64 flight_id = 1;
+  string booking_reference = 2;
+  int32 total_seats = 3;
+  map<string, int32> cabin_seats = 4;
+}
+
+message ReleaseResponse {
+  bool success = 1;
+  string message = 2;
+}

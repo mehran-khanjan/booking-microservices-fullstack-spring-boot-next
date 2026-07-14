@@ -11,9 +11,9 @@
     </parent>
 
     <packaging>jar</packaging>
-    <artifactId>flight-service</artifactId>
-    <name>flight-service</name>
-    <description>flight-service</description>
+    <artifactId>booking-service</artifactId>
+    <name>booking-service</name>
+    <description>booking-service</description>
     <url/>
     <licenses>
         <license/>
@@ -27,11 +27,9 @@
         <tag/>
         <url/>
     </scm>
-
     <properties>
         <java.version>21</java.version>
     </properties>
-
     <dependencies>
 
         <dependency>
@@ -115,6 +113,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.25.2</version>
+        </dependency>
 
         <dependency>
             <groupId>com.example</groupId>
@@ -160,11 +163,10 @@
             <artifactId>hibernate-community-dialects</artifactId>
         </dependency>
 
-        <!-- Data Faker -->
+        <!-- gRPC Client -->
         <dependency>
-            <groupId>net.datafaker</groupId>
-            <artifactId>datafaker</artifactId>
-            <version>2.4.1</version>
+            <groupId>net.devh</groupId>
+            <artifactId>grpc-client-spring-boot-starter</artifactId>
         </dependency>
 
         <!-- gRPC Compilation-->
@@ -186,11 +188,13 @@
             <version>1.3.2</version>
         </dependency>
 
-        <!-- gRPC Server -->
         <dependency>
-            <groupId>net.devh</groupId>
-            <artifactId>grpc-server-spring-boot-starter</artifactId>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>33.1.0</version>
         </dependency>
+
+        <!-- Adding more code to this part of the app. You can add more codes to this part of the app and other parts of the app. You can add more codes to this part and other parts of the app. You can add more codes to this part of the app. -->
 
     </dependencies>
 
@@ -235,7 +239,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-
         </plugins>
     </build>
 

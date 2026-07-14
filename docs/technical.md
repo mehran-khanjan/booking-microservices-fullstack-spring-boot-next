@@ -235,3 +235,98 @@ Here is a one-line explanation for each file:
 
 - **BusinessException.java** – Custom runtime exception for domain‑specific errors, carrying an error code from `ErrorCodes`.
 
+## Acceptance Criteria 3.1.1 to 3.1.7
+
+**Note 1:** Booking service new files:
+
+Here is a one-line explanation for each file:
+
+- **`bookingservice/repository/BookingRepository.java`** – Repository for `Booking` entities with custom query methods and pessimistic locking.
+
+- **`bookingservice/repository/AdditionalServiceRepository.java`** – Repository for `AdditionalService` entities, supporting lookup by booking.
+
+- **`bookingservice/repository/PassengerRepository.java`** – Repository for `Passenger` entities, supporting lookup by booking.
+
+- **`bookingservice/repository/BookingFlightRepository.java`** – Repository for `BookingFlight` entities, providing ordered flight segments per booking.
+
+- **`bookingservice/entity/BookingFlight.java`** – Entity representing a single flight segment within a booking, with denormalised flight data.
+
+- **`bookingservice/entity/Passenger.java`** – Entity representing a passenger associated with a booking.
+
+- **`bookingservice/entity/Flight.java`** – Core entity representing a scheduled flight with operational details, seat availability, and pricing.
+
+- **`bookingservice/entity/Booking.java`** – Core booking entity holding flights, passengers, services, and lifecycle status.
+
+- **`bookingservice/entity/Airport.java`** – Entity representing an airport with IATA/ICAO codes and location metadata.
+
+- **`bookingservice/entity/AircraftType.java`** – Entity representing an aircraft model with seat capacities per cabin.
+
+- **`bookingservice/entity/Airline.java`** – Entity representing an airline with IATA code, name, and logo.
+
+- **`bookingservice/entity/AdditionalService.java`** – Entity for optional services (e.g., extra baggage, meals) attached to a booking.
+
+- **`bookingservice/enums/TimeOfDayRange.java`** – Enum representing time‑of‑day ranges for flight schedule filtering.
+
+- **`bookingservice/enums/CabinClass.java`** – Enum for cabin classes (economy, business, etc.).
+
+- **`bookingservice/BookingServiceApplication.java`** – Spring Boot main class that starts the Booking Service.
+
+- **`bookingservice/property/StripeProperties.java`** – Configuration properties for Stripe payment gateway (API key, webhook secret).
+
+- **`bookingservice/property/CorsProperties.java`** – Configuration properties for CORS allowed origins.
+
+- **`bookingservice/property/PayPalProperties.java`** – Configuration properties for PayPal payment gateway (client ID, secret, base URL).
+
+- **`bookingservice/constant/ErrorCodes.java`** – Central registry of unique error codes grouped by domain.
+
+- **`bookingservice/config/SecurityConfig.java`** – Spring Security configuration with OAuth2 resource server, JWT, and role‑based authorization.
+
+- **`bookingservice/config/GrpcClientConfig.java`** – gRPC client configuration providing a blocking stub for the Flight Service.
+
+- **`bookingservice/config/LockingStrategyConfig.java`** – Configuration for the booking locking strategy (distributed or pessimistic).
+
+- **`bookingservice/config/RedisConfig.java`** – Redis configuration using Redisson for distributed locking.
+
+- **`bookingservice/config/SchedulingConfig.java`** – Enables Spring’s scheduled task execution for hold‑expiry sweeps.
+
+- **`bookingservice/mapper/BookingMapper.java`** – Mapper between `Booking` entities and `BookingResponse` DTOs, including passenger conversion.
+
+- **`bookingservice/servcie/payment/StripePaymentGatewayService.java`** – Stripe integration implementing `PaymentGatewayService` via PaymentIntents.
+
+- **`bookingservice/servcie/payment/PayPalPaymentGatewayService.java`** – PayPal integration capturing orders via REST API.
+
+- **`bookingservice/servcie/payment/PaymentRequest.java`** – Internal DTO for triggering a payment charge.
+
+- **`bookingservice/servcie/payment/PaymentGatewayResult.java`** – Gateway‑agnostic outcome of a charge attempt.
+
+- **`bookingservice/servcie/payment/PaymentGatewayFactory.java`** – Factory that resolves the appropriate payment gateway bean by method name.
+
+- **`bookingservice/servcie/payment/PaymentChargeRequest.java`** – Gateway‑agnostic request object passed to payment gateways.
+
+- **`bookingservice/servcie/payment/PaymentGatewayService.java`** – Interface for all payment gateway implementations.
+
+- **`bookingservice/servcie/BookingHoldExpiryScheduler.java`** – Scheduled task that releases seats for expired booking holds.
+
+- **`bookingservice/servcie/OrderService.java`** – Handles payment processing, validation, and booking confirmation lifecycle.
+
+- **`bookingservice/servcie/FlightServiceClient.java`** – Client for the Flight gRPC service to fetch flights, reserve, and release seats.
+
+- **`bookingservice/servcie/BookingService.java`** – Core service for creating bookings with distributed/optimistic locking and compensation logic.
+
+- **`bookingservice/servcie/BookingLockingService.java`** – Distributed locking service using Redisson for single and multi‑lock acquisitions.
+
+- **`bookingservice/dto/controller/BookingResponse.java`** – Response DTO containing complete booking details.
+
+- **`bookingservice/dto/controller/CreateBookingRequest.java`** – Request DTO for creating a new booking with flights, passengers, and services.
+
+- **`bookingservice/dto/controller/PaymentRequest.java`** – Request DTO for processing a payment.
+
+- **`bookingservice/dto/controller/CancelBookingRequest.java`** – Request DTO for cancelling a booking (full or partial).
+
+- **`bookingservice/dto/controller/PaymentResponse.java`** – Response DTO for payment processing results.
+
+- **`bookingservice/controller/FlightBookingController.java`** – REST controller exposing booking creation and payment endpoints with circuit‑breaker fallbacks.
+
+- **`bookingservice/exception/GlobalExceptionHandler.java`** – Global exception handler providing structured `ApiResponse` errors for validation and unexpected failures.
+
+- **`bookingservice/exception/BusinessException.java`** – Custom runtime exception for business logic errors with an error code.

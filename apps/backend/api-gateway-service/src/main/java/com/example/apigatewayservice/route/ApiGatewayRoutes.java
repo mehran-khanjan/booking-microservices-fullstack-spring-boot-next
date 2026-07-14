@@ -35,6 +35,12 @@ public class ApiGatewayRoutes {
             .filter(lb("flight-service"))
             .build();
 
-    return authRoutes.and(communicationRoutes).and(flightRoutes);
+    var bookingRoutes =
+        route("booking-service")
+            .route(path("/api/v1/bookings/**"), http())
+            .filter(lb("booking-service"))
+            .build();
+
+    return authRoutes.and(communicationRoutes).and(flightRoutes).and(bookingRoutes);
   }
 }
