@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: booking-service-test
+  main:
+    allow-bean-definition-overriding: true
+
+  output:
+    ansi:
+      enabled: always
+
+  # In-memory H2 for tests
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    show-sql: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9999/test-realm
+
+  data:
+    redis:
+      host: localhost
+      port: 0
+  redis:
+    host: localhost
+    port: 0
+
+  flyway:
+    enabled: false
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration
+      - org.redisson.spring.starter.RedissonAutoConfiguration
+
+server:
+  port: 0
+
+eureka:
+  client:
+    enabled: false
+
+booking:
+  locking:
+    strategy: OPTIMISTIC
+  hold-expiry:
+    sweep-interval-ms: 60000
+
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+
+payment:
+  stripe:
+    api-key: sk_test_dummy
+    webhook-secret: whsec_dummy
+  paypal:
+    client-id: dummy_client_id
+    client-secret: dummy_client_secret
+    base-url: https://api-m.sandbox.paypal.com
+
+grpc:
+  client:
+    flight-service:
+      address: 'static://localhost:9999'
+      negotiation-type: plaintext
