@@ -206,7 +206,14 @@ Error response structure:
 
 
 ```bash
-mvn clean test -Dspring.profiles.active=test
+mvn clean
+mvn compile
+mvn test
+
+# Run tests for each service
+mvn test -pl <service-name> -am
+# Example
+mvn test -pl booking-service -am
 ```
 
 ---

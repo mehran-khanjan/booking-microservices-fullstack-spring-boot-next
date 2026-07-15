@@ -6,12 +6,14 @@ import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 /**
  * Redis configuration for distributed locking and caching using Redisson. Configures a single Redis
  * server connection with connection pooling.
  */
 @Configuration
+@Profile("!test")
 public class RedisConfig {
 
   @Value("${spring.redis.host:localhost}")

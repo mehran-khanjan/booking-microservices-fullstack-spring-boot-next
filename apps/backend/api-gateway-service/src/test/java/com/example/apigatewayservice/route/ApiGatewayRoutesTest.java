@@ -37,7 +37,7 @@ class ApiGatewayRoutesTest {
   void doesNotMatchUnrelatedPath() {
     RouterFunction<ServerResponse> routerFunction = routes.customRoutes();
 
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "/api/v1/bookings/123");
+    MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "/api/v1/unrelated/resource");
     ServerRequest serverRequest = ServerRequest.create(mockRequest, Collections.emptyList());
 
     assertThat(routerFunction.route(serverRequest)).isNotPresent();

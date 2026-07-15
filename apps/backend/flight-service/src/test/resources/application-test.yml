@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: flight-service-test
+  main:
+    allow-bean-definition-overriding: true
+
+  output:
+    ansi:
+      enabled: always
+
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    show-sql: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9999/test-realm
+
+  data:
+    redis:
+      host: localhost
+      port: 0
+  redis:
+    host: localhost
+    port: 0
+
+  flyway:
+    enabled: false
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration
+
+server:
+  port: 0
+
+eureka:
+  client:
+    enabled: false
+
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+
+resilience4j:
+  ratelimiter:
+    instances:
+      globalRateLimiter:
+        limit-for-period: 100
+        limit-refresh-period: 1m
+        timeout-duration: 0s

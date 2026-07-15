@@ -53,13 +53,13 @@ public class BookingService {
   public BookingResponse createBooking(CreateBookingRequest request, String userId) {
     String correlationId = UUID.randomUUID().toString();
 
+    validateBookingRequest(request);
+
     log.info(
         "Creating booking for user: {}, flights: {}, passengers: {}",
         userId,
         request.getFlights().size(),
         request.getPassengers().size());
-
-    validateBookingRequest(request);
 
     String lockingStrategy = lockingConfig.getStrategy();
 
